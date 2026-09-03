@@ -117,9 +117,18 @@ fun SettingsScreen(
                 SettingsGroup {
                     SettingsItem(
                         icon = Icons.Default.Backup,
-                        title = "Manage Backups",
-                        subtitle = "Create, restore, and manage backups",
-                        onClick = onManageBackups
+                        title = "Backup Data",
+                        subtitle = "Export all data to file",
+                        onClick = onBackupData
+                    )
+                    
+                    Divider(color = Color(0xFFE5E5EA), thickness = 0.5.dp)
+                    
+                    SettingsItem(
+                        icon = Icons.Default.Restore,
+                        title = "Restore Data",
+                        subtitle = "Import from backup file",
+                        onClick = onRestoreData
                     )
                     
                     Divider(color = Color(0xFFE5E5EA), thickness = 0.5.dp)
