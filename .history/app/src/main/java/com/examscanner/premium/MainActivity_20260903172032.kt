@@ -457,6 +457,42 @@ fun ExamScannerApp() {
             )
         }
         
+        // Map Questions to MELCs Screen
+        composable(
+            route = "map_melcs/{examId}",
+            arguments = listOf(navArgument("examId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val examId = backStackEntry.arguments?.getLong("examId") ?: return@composable
+            
+            val allMelcs by viewModel.getAllMelcs().collectAsState(initial = emptyList())
+            var existingMappings by remember { mutableStateOf<Map<Int, com.examscanner.premium.data.MelcEntity>>(emptyMap()) }
+            var refreshKey by remember { mutableStateOf(0) }
+            
+            // Reload MELC mappings whenever this screen appears OR when refreshKey changes
+            LaunchedEffect(examId, backStackEntry, refreshKey) {
+                viewModel.loadExamDetail(examId)
+                existingMappings = viewModel.getQuestionMelcMappings(examId)
+            }
+            
+            detailState.exam?.let { exam ->
+                MapQuestionsToMelcScreen(
+                    examId = examId,
+                    totalQuestions = exam.totalQuestions,
+                    availableMelcs = allMelcs,
+                    existingMappings = existingMappings,
+                    onBack = { navController.popBackStack() },
+                    onSaveMappings = { mappings ->
+                        scope.launch {
+                            viewModel.saveQuestionMelcMappings(examId, mappings)
+                            // Immediately refresh the mappings after save
+                            existingMappings = viewModel.getQuestionMelcMappings(examId)
+                            refreshKey++ // Force refresh
+                            Toast.makeText(context, "MELC mappings saved!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                )
+            }
+        }
         
         // Camera Screen
         composable("camera") {

@@ -38,6 +38,7 @@ fun ExamDetailScreen(
     onBack: () -> Unit,
     onScanClick: () -> Unit,
     onEditKeyClick: () -> Unit,
+    onMapMelcs: () -> Unit = {},
     onResetClick: () -> Unit,
     onExportClick: () -> Unit,
     onEditExam: (String) -> Unit = {},
