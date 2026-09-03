@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Exam Scanner</string>
+    
+    <!-- Screen titles -->
+    <string name="exams_title">Exams</string>
+    <string name="students_title">Students</string>
+    <string name="new_exam">New Exam</string>
+    
+    <!-- Actions -->
+    <string name="scan_sheets">Scan Sheets</string>
+    <string name="capture_grade_save">CAPTURE · GRADE · SAVE</string>
+    <string name="create_sheet_set_key">CREATE A SHEET · SET THE KEY</string>
+    
+    <!-- Stats -->
+    <string name="graded">GRADED</string>
+    <string name="exams">EXAMS</string>
+    <string name="students">STUDENTS</string>
+    <string name="scanned">SCANNED</string>
+    <string name="average">AVERAGE</string>
+    <string name="flags">FLAGS</string>
+    
+    <!-- Tabs -->
+    <string name="edit_key">EDIT KEY</string>
+    <string name="print">PRINT</string>
+    <string name="reset">RESET</string>
+    <string name="export">EXPORT</string>
+    <string name="scores">SCORES</string>
+    <string name="item_analysis">ITEM ANALYSIS</string>
+    
+    <!-- Content -->
+    <string name="recent">RECENT</string>
+    <string name="no_scans">NO SCANS</string>
+    <string name="questions_format">%d Questions</string>
+    <string name="keyed_format">%d/%d keyed</string>
+    
+    <!-- Descriptions -->
+    <string name="back">Back</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="profile">Profile</string>
+    <string name="scan">Scan</string>
+</resources>
