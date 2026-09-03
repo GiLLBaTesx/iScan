@@ -1,0 +1,30 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# VS Code Local History
+.history/
+
+# Firebase configuration (contains API keys and project IDs)
+google-services.json
+app/google-services.json
+
+# Keystore files (never commit signing keys)
+*.jks
+*.keystore
+
+# jqwik property-test database (test artifact)
+.jqwik-database
+app/.jqwik-database

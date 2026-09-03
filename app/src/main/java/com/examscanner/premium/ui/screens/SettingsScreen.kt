@@ -1,0 +1,488 @@
+package com.examscanner.premium.ui.screens
+
+import android.content.Context
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.examscanner.premium.R
+import com.examscanner.premium.localization.LocalizationManager
+import com.examscanner.premium.ui.components.*
+import com.examscanner.premium.ui.theme.*
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsScreen(
+    onBack: () -> Unit,
+    onManageBackups: () -> Unit,
+    onClearData: () -> Unit,
+    onCreateTemplate: () -> Unit = {},
+    onDownloadTemplate: (String, Int) -> Unit = { _, _ -> },
+    onPreviewTemplate: (String, Int) -> Unit = { _, _ -> },
+    onRecycleBin: () -> Unit = {},
+    onAbout: () -> Unit = {},
+    onManageSubscription: () -> Unit = {}
+) {
+    val context = LocalContext.current
+    var showClearDataDialog by remember { mutableStateOf(false) }
+    var showTemplateDialog by remember { mutableStateOf(false) }
+    var showLanguageDialog by remember { mutableStateOf(false) }
+
+    val localizationManager = remember(context) { LocalizationManager(context) }
+    var currentLanguage by remember {
+        mutableStateOf(localizationManager.getCurrentLanguage())
+    }
+    
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFFAFAFC),
+                        Color(0xFFF0F4F8)
+                    )
+                )
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(20.dp)
+        ) {
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        Icons.Default.ArrowBack,
+                        contentDescription = "Back",
+                        tint = ElectricBlue
+                    )
+                }
+                
+                Spacer(modifier = Modifier.width(8.dp))
+                
+                Text(
+                    text = "Settings",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1C1C1E)
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Templates Section
+                SectionHeader("Answer Sheet Templates")
+                
+                SettingsGroup {
+                    SettingsItem(
+                        icon = Icons.Default.Download,
+                        title = "Download Built-in Templates",
+                        subtitle = "Quick access to standard answer sheets",
+                        onClick = { showTemplateDialog = true }
+                    )
+                    
+                    Divider(color = Color(0xFFE5E5EA), thickness = 0.5.dp)
+                    
+                    SettingsItem(
+                        icon = Icons.Default.Edit,
+                        title = "Create Custom Template",
+                        subtitle = "Generate custom bubble sheet templates",
+                        onClick = onCreateTemplate
+                    )
+                }
+                
+                // Account Section
+                SectionHeader("Account")
+
+                SettingsGroup {
+                    SettingsItem(
+                        icon = Icons.Default.WorkspacePremium,
+                        title = "Manage Subscription",
+                        subtitle = "View your plan and upgrade to Premium",
+                        onClick = onManageSubscription
+                    )
+                }
+
+                // App Section
+                SectionHeader("Application")
+                
+                SettingsGroup {
+                    SettingsItem(
+                        icon = Icons.Default.Info,
+                        title = "About iScan",
+                        subtitle = "App information and credits",
+                        onClick = onAbout
+                    )
+                    
+                    Divider(color = Color(0xFFE5E5EA), thickness = 0.5.dp)
+                    
+                    SettingsItem(
+                        icon = Icons.Default.Language,
+                        title = stringResource(R.string.settings_language),
+                        subtitle = currentLanguage.displayName,
+                        onClick = { showLanguageDialog = true }
+                    )
+                }
+                
+                // Data Section
+                SectionHeader("Data Management")
+                
+                SettingsGroup {
+                    SettingsItem(
+                        icon = Icons.Default.Backup,
+                        title = "Manage Backups",
+                        subtitle = "Create, restore, and manage backups",
+                        onClick = onManageBackups
+                    )
+                    
+                    Divider(color = Color(0xFFE5E5EA), thickness = 0.5.dp)
+                    
+                    SettingsItem(
+                        icon = Icons.Default.Delete,
+                        title = "Clear All Data",
+                        subtitle = "Delete all data (auto-backup created first)",
+                        onClick = { showClearDataDialog = true },
+                        isDestructive = true
+                    )
+                }
+                
+                // Storage Section
+                SectionHeader("Storage")
+                
+                SettingsGroup {
+                    SettingsItem(
+                        icon = Icons.Default.Storage,
+                        title = "App Storage",
+                        subtitle = getAppSize(context),
+                        onClick = { }
+                    )
+                    
+                    Divider(color = Color(0xFFE5E5EA), thickness = 0.5.dp)
+                    
+                    SettingsItem(
+                        icon = Icons.Default.FolderDelete,
+                        title = "Recycle Bin",
+                        subtitle = "Manage deleted items",
+                        onClick = onRecycleBin
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(40.dp))
+            }
+        }
+    }
+    
+    // Language Selection Dialog
+    if (showLanguageDialog) {
+        AlertDialog(
+            onDismissRequest = { showLanguageDialog = false },
+            title = {
+                Text(
+                    text = stringResource(R.string.settings_choose_language),
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimaryIce
+                )
+            },
+            text = {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    LocalizationManager.AppLanguage.values().forEach { language ->
+                        val selected = language == currentLanguage
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable {
+                                    localizationManager.setLanguage(language)
+                                    currentLanguage = language
+                                    showLanguageDialog = false
+                                }
+                                .background(
+                                    if (selected) IceBlue else Color.Transparent
+                                )
+                                .padding(horizontal = 12.dp, vertical = 14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = selected,
+                                onClick = {
+                                    localizationManager.setLanguage(language)
+                                    currentLanguage = language
+                                    showLanguageDialog = false
+                                },
+                                colors = RadioButtonDefaults.colors(
+                                    selectedColor = ElectricBlue,
+                                    unselectedColor = TextTertiaryIce
+                                )
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = language.nativeName,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = TextPrimaryIce,
+                                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLanguageDialog = false }) {
+                    Text(stringResource(R.string.action_cancel), color = ElectricBlue)
+                }
+            }
+        )
+    }
+
+    // Clear Data Confirmation Dialog
+    if (showClearDataDialog) {
+        UnifiedDialog(
+            onDismissRequest = { showClearDataDialog = false },
+            title = "Clear All Data?",
+            icon = Icons.Default.Warning,
+            isDangerous = true,
+            confirmText = "DELETE ALL",
+            dismissText = "CANCEL",
+            onConfirm = {
+                showClearDataDialog = false
+                onClearData()
+            },
+            onDismiss = { showClearDataDialog = false },
+            content = {
+                Text(
+                    text = "⚠️ Important Safety Notice",
+                    fontWeight = FontWeight.Bold,
+                    color = WarningAmber
+                )
+                Text("A safety backup will be created automatically before clearing your data.")
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Text(
+                    text = "This will permanently delete:",
+                    fontWeight = FontWeight.SemiBold,
+                    color = TextPrimaryIce
+                )
+                Text("• All subject folders", color = TextSecondaryIce)
+                Text("• All exams and answer keys", color = TextSecondaryIce)
+                Text("• All student records", color = TextSecondaryIce)
+                Text("• All scan results", color = TextSecondaryIce)
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Text(
+                    text = "✓ You can restore from the backup if needed.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = IcyCyan,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        )
+    }
+    
+    // Template Download Dialog
+    if (showTemplateDialog) {
+        AlertDialog(
+            onDismissRequest = { showTemplateDialog = false },
+            title = {
+                Text(
+                    text = "Download Answer Sheet Template",
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "Select a standard template to download:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFF8E8E93)
+                    )
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    // Quick template options
+                    listOf(
+                        "Quick 20" to 20,
+                        "Quick 30" to 30,
+                        "Quick 50" to 50,
+                        "Quick 75" to 75,
+                        "Quick 100" to 100
+                    ).forEach { (name, questions) ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color(0xFFF2F2F7)
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.Description,
+                                    contentDescription = null,
+                                    tint = ElectricBlue
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = name,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Color(0xFF1C1C1E)
+                                    )
+                                    Text(
+                                        text = "$questions questions • 4 choices (A-D)",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Color(0xFF8E8E93)
+                                    )
+                                }
+                                // Preview (view-only) action
+                                IconButton(
+                                    onClick = {
+                                        showTemplateDialog = false
+                                        onPreviewTemplate(name, questions)
+                                    }
+                                ) {
+                                    Icon(
+                                        Icons.Default.Visibility,
+                                        contentDescription = "Preview $name",
+                                        tint = IcyCyan
+                                    )
+                                }
+                                // Download action
+                                IconButton(
+                                    onClick = {
+                                        showTemplateDialog = false
+                                        onDownloadTemplate(name, questions)
+                                    }
+                                ) {
+                                    Icon(
+                                        Icons.Default.Download,
+                                        contentDescription = "Download $name",
+                                        tint = ElectricBlue
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showTemplateDialog = false }) {
+                    Text("CANCEL", color = Color(0xFF8E8E93))
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun SectionHeader(text: String) {
+    Text(
+        text = text.uppercase(),
+        style = MaterialTheme.typography.labelMedium,
+        color = Color(0xFF8E8E93),
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp)
+    )
+}
+
+@Composable
+private fun SettingsGroup(content: @Composable ColumnScope.() -> Unit) {
+    FloatingGlassCard(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(vertical = 8.dp)
+        ) {
+            content()
+        }
+    }
+}
+
+@Composable
+private fun SettingsItem(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit,
+    isDestructive: Boolean = false
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            icon,
+            contentDescription = null,
+            tint = if (isDestructive) Color(0xFFFF3B30) else ElectricBlue,
+            modifier = Modifier.size(24.dp)
+        )
+        
+        Spacer(modifier = Modifier.width(16.dp))
+        
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (isDestructive) Color(0xFFFF3B30) else Color(0xFF1C1C1E)
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = Color(0xFF8E8E93)
+            )
+        }
+        
+        Icon(
+            Icons.Default.ChevronRight,
+            contentDescription = null,
+            tint = Color(0xFFAEAEB2)
+        )
+    }
+}
+
+private fun getAppSize(context: Context): String {
+    val cacheSize = context.cacheDir.walkTopDown().sumOf { it.length() }
+    val filesSize = context.filesDir.walkTopDown().sumOf { it.length() }
+    val totalBytes = cacheSize + filesSize
+    
+    return when {
+        totalBytes < 1024 -> "$totalBytes B"
+        totalBytes < 1024 * 1024 -> "${totalBytes / 1024} KB"
+        else -> "${totalBytes / (1024 * 1024)} MB"
+    }
+}

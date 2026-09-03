@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Exam Scanner</string>
+
+    <!-- Screen titles -->
+    <string name="exams_title">Mga Pagsusulit</string>
+    <string name="students_title">Mga Mag-aaral</string>
+    <string name="new_exam">Bagong Pagsusulit</string>
+
+    <!-- Actions -->
+    <string name="scan_sheets">I-scan ang mga Sheet</string>
+    <string name="capture_grade_save">KUNAN · MARKAHAN · I-SAVE</string>
+    <string name="create_sheet_set_key">GUMAWA NG SHEET · ITAKDA ANG SUSI</string>
+
+    <!-- Stats -->
+    <string name="graded">NAMARKAHAN</string>
+    <string name="exams">MGA PAGSUSULIT</string>
+    <string name="students">MGA MAG-AARAL</string>
+    <string name="scanned">NA-SCAN</string>
+    <string name="average">KATAMTAMAN</string>
+    <string name="flags">MGA BANDILA</string>
+
+    <!-- Tabs -->
+    <string name="edit_key">BAGUHIN ANG SUSI</string>
+    <string name="print">I-PRINT</string>
+    <string name="reset">I-RESET</string>
+    <string name="export">I-EXPORT</string>
+    <string name="scores">MGA MARKA</string>
+    <string name="item_analysis">PAGSUSURI NG ITEM</string>
+
+    <!-- Content -->
+    <string name="recent">KAMAKAILAN</string>
+    <string name="no_scans">WALANG SCAN</string>
+    <string name="questions_format">%d na Tanong</string>
+    <string name="keyed_format">%d/%d na naka-key</string>
+
+    <!-- Descriptions -->
+    <string name="back">Bumalik</string>
+    <string name="edit">Baguhin</string>
+    <string name="delete">Burahin</string>
+    <string name="profile">Profile</string>
+    <string name="scan">I-scan</string>
+
+    <!-- ==================== Internationalization (Req 20.4) ==================== -->
+
+    <!-- Navigation labels -->
+    <string name="nav_home">Tahanan</string>
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_subjects">Mga Asignatura</string>
+    <string name="nav_exams">Mga Pagsusulit</string>
+    <string name="nav_students">Mga Mag-aaral</string>
+    <string name="nav_reports">Mga Ulat</string>
+    <string name="nav_analytics">Analytics</string>
+    <string name="nav_settings">Mga Setting</string>
+    <string name="nav_recycle_bin">Basurahan</string>
+
+    <!-- Common button text -->
+    <string name="action_save">I-save</string>
+    <string name="action_cancel">Kanselahin</string>
+    <string name="action_delete">Burahin</string>
+    <string name="action_back">Bumalik</string>
+    <string name="action_ok">OK</string>
+    <string name="action_confirm">Kumpirmahin</string>
+    <string name="action_close">Isara</string>
+    <string name="action_edit">Baguhin</string>
+    <string name="action_add">Magdagdag</string>
+    <string name="action_create">Gumawa</string>
+    <string name="action_continue">Magpatuloy</string>
+    <string name="action_next">Susunod</string>
+    <string name="action_done">Tapos</string>
+    <string name="action_retry">Subukan Muli</string>
+    <string name="action_share">Ibahagi</string>
+    <string name="action_export">I-export</string>
+    <string name="action_import">I-import</string>
+    <string name="action_restore">Ibalik</string>
+    <string name="action_skip">Laktawan</string>
+
+    <!-- Dialog messages -->
+    <string name="dialog_confirm_delete_title">Kumpirmahin ang Pagbura</string>
+    <string name="dialog_confirm_delete_message">Sigurado ka bang buburahin ang item na ito? Hindi na ito maibabalik.</string>
+    <string name="dialog_unsaved_changes_title">Hindi Naka-save na mga Pagbabago</string>
+    <string name="dialog_unsaved_changes_message">May mga pagbabagong hindi pa naka-save. Nais mo bang itapon ang mga ito?</string>
+    <string name="dialog_discard">Itapon</string>
+    <string name="dialog_keep_editing">Ipagpatuloy ang Pag-edit</string>
+    <string name="dialog_success_title">Tagumpay</string>
+    <string name="dialog_saved_message">Naka-save na ang iyong mga pagbabago.</string>
+    <string name="dialog_deleted_message">Matagumpay na nabura ang item.</string>
+
+    <!-- Error messages -->
+    <string name="error_generic">May nangyaring mali. Pakisubukan muli.</string>
+    <string name="error_required_field">Kailangan ang field na ito.</string>
+    <string name="error_invalid_input">Hindi wastong input. Pakisuri at subukan muli.</string>
+    <string name="error_name_empty">Hindi maaaring walang laman ang pangalan.</string>
+    <string name="error_duplicate_id">Umiiral na ang ID na ito sa seksyon.</string>
+    <string name="error_no_network">Walang koneksyon sa internet. Offline na gumagana.</string>
+    <string name="error_save_failed">Hindi na-save. Pakisubukan muli.</string>
+    <string name="error_load_failed">Hindi na-load ang datos. Pakisubukan muli.</string>
+    <string name="error_scan_failed">Hindi mabasa ang answer sheet. Pakiscan muli.</string>
+    <string name="error_low_storage">Paubos na ang storage. Magbakante ng espasyo upang magpatuloy.</string>
+
+    <!-- Report headers -->
+    <string name="report_individual_title">Ulat ng Indibidwal na Mag-aaral</string>
+    <string name="report_class_summary_title">Buod ng Ulat ng Klase</string>
+    <string name="report_school_level_title">Ulat sa Antas ng Paaralan</string>
+    <string name="report_header_student">Mag-aaral</string>
+    <string name="report_header_section">Seksyon</string>
+    <string name="report_header_subject">Asignatura</string>
+    <string name="report_header_score">Marka</string>
+    <string name="report_header_percentage">Porsyento</string>
+    <string name="report_header_mastery">Antas ng Kasanayan</string>
+    <string name="report_header_date">Petsa</string>
+    <string name="report_header_mean">Mean</string>
+    <string name="report_header_median">Median</string>
+    <string name="report_header_highest">Pinakamataas</string>
+    <string name="report_header_lowest">Pinakamababa</string>
+    <string name="report_header_std_dev">Standard Deviation</string>
+    <string name="report_generated_on">Ginawa noong %s</string>
+
+    <!-- Settings: language selection -->
+    <string name="settings_language">Wika</string>
+    <string name="settings_language_subtitle">Piliin ang iyong nais na wika</string>
+    <string name="settings_choose_language">Pumili ng Wika</string>
+    <string name="language_english">Ingles</string>
+    <string name="language_filipino">Filipino</string>
+
+    <!-- App lock / student-records authentication gate (Req 8.7, 13.2) -->
+    <string name="app_lock_prompt_title">I-unlock ang Exam Scanner</string>
+    <string name="app_lock_prompt_subtitle">Patunayan na ikaw ito upang makita ang mga rekord ng mag-aaral</string>
+    <string name="app_lock_title">Naka-lock ang mga Rekord</string>
+    <string name="app_lock_message">Mag-authenticate gamit ang device PIN, pattern, password, o fingerprint upang makita ang mga rekord ng mag-aaral.</string>
+    <string name="app_lock_unlock">I-unlock</string>
+    <string name="app_lock_locked_description">Naka-lock</string>
+</resources>

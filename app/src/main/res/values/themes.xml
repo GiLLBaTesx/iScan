@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Parent must be an AppCompat-compatible theme because MainActivity now extends
+        AppCompatActivity (required to back-port per-app locales on API 26-32, Req 20.x).
+        A plain android:Theme.* parent would crash AppCompatActivity at startup
+        ("You need to use a Theme.AppCompat theme (or descendant) with this activity.").
+        The Material Components XML library (com.google.android.material) is not a
+        dependency, so Theme.Material3/MaterialComponents XML themes are unavailable; the
+        appcompat library (1.6.1) is present, so Theme.AppCompat.DayNight.NoActionBar is used.
+        The visible UI is Compose (ExamScannerTheme + Compose Material3), so this XML theme only
+        needs to satisfy AppCompat; the status-bar tweaks below are preserved.
+    -->
+    <style name="Theme.ExamScanner" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>

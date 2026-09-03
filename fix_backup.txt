@@ -1,0 +1,3 @@
+I need to fix the BackupManagementScreen - the issue is the LazyColumn can't have .weight() modifier directly.
+
+The solution is to use fillMaxSize() instead of weight(1f) since it's already in a Box that fills the size.

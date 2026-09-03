@@ -1,0 +1,66 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function: Check if user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // ============================================
+    // TRIAL ABUSE PREVENTION (SECURED)
+    // ============================================
+    
+    // Device trial tracking - SECURED
+    match /device_trials/{deviceId} {
+      // ✅ SECURE: Only allow authenticated reads of own device
+      allow read: if isSignedIn() 
+                  && request.auth.uid == resource.data.userId;
+      
+      // Allow creation if trialUsed is false (first trial registration)
+      allow create: if isSignedIn()
+                    && request.resource.data.trialUsed == false
+                    && request.resource.data.userId == request.auth.uid;
+      
+      // Only allow updates to flag trial as complete (one-way operation)
+      allow update: if isSignedIn()
+                    && request.auth.uid == resource.data.userId
+                    && request.resource.data.trialUsed == true
+                    && resource.data.trialUsed == false;
+      
+      // Never allow deletion - permanent record
+      allow delete: if false;
+    }
+    
+    // Trial violation logs - write-only for abuse monitoring
+    match /trial_violations/{violationId} {
+      allow create: if true; // Allow logging violations
+      allow read: if false;  // Only admins via Firebase Console
+      allow update, delete: if false; // Immutable records
+    }
+    
+    // ============================================
+    // USER DATA
+    // ============================================
+    
+    // User profiles - private to user
+    match /users/{userId}/profile/{document=**} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // User exam data - private to user
+    match /users/{userId}/exams/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // ============================================
+    // ADMIN ONLY (configure via Firebase Console)
+    // ============================================
+    
+    // Admin collection - no public access
+    match /admin/{document=**} {
+      allow read, write: if false; // Only via Firebase Admin SDK
+    }
+  }
+}
