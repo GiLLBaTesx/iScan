@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -95,32 +94,19 @@ fun EditKeyScreen(
                             )
                         }
                     }
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        // Import CSV button
-                        onImportCSV?.let {
-                            IconButton(onClick = { showImportMenu = true }) {
-                                Icon(
-                                    imageVector = Icons.Default.Upload,
-                                    contentDescription = "Import CSV",
-                                    tint = ElectricBlue
-                                )
-                            }
+                    IconButton(
+                        onClick = { 
+                            onSave(answers)
+                            val mappingsToSave = melcMappings.mapValues { it.value.id }
+                            onSaveMelcMappings(mappingsToSave)
+                            onBack()
                         }
-                        // Save button
-                        IconButton(
-                            onClick = { 
-                                onSave(answers)
-                                val mappingsToSave = melcMappings.mapValues { it.value.id }
-                                onSaveMelcMappings(mappingsToSave)
-                                onBack()
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = "Save",
-                                tint = IcyCyan
-                            )
-                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = "Save",
+                            tint = IcyCyan
+                        )
                     }
                 }
             }
@@ -176,38 +162,6 @@ fun EditKeyScreen(
                     )
                 }
             }
-        }
-        
-        // CSV Import Dialog
-        if (showImportMenu) {
-            AlertDialog(
-                onDismissRequest = { showImportMenu = false },
-                title = { Text("Import Answer Key") },
-                text = {
-                    Column {
-                        Text("Upload a CSV file with your answer key:")
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("Format 1: Question,Answer", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
-                        Text("1,A\n2,B\n3,C", style = MaterialTheme.typography.bodySmall, fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("Format 2: One answer per line", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
-                        Text("A\nB\nC", style = MaterialTheme.typography.bodySmall, fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
-                    }
-                },
-                confirmButton = {
-                    TextButton(onClick = {
-                        showImportMenu = false
-                        onImportCSV?.invoke(emptyMap()) // Trigger file picker in parent
-                    }) {
-                        Text("SELECT FILE", color = ElectricBlue, fontWeight = FontWeight.Bold)
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showImportMenu = false }) {
-                        Text("CANCEL")
-                    }
-                }
-            )
         }
         
         // MELC Selector Dialog

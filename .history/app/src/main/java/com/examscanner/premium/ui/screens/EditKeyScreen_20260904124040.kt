@@ -178,38 +178,6 @@ fun EditKeyScreen(
             }
         }
         
-        // CSV Import Dialog
-        if (showImportMenu) {
-            AlertDialog(
-                onDismissRequest = { showImportMenu = false },
-                title = { Text("Import Answer Key") },
-                text = {
-                    Column {
-                        Text("Upload a CSV file with your answer key:")
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("Format 1: Question,Answer", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
-                        Text("1,A\n2,B\n3,C", style = MaterialTheme.typography.bodySmall, fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("Format 2: One answer per line", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
-                        Text("A\nB\nC", style = MaterialTheme.typography.bodySmall, fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
-                    }
-                },
-                confirmButton = {
-                    TextButton(onClick = {
-                        showImportMenu = false
-                        onImportCSV?.invoke(emptyMap()) // Trigger file picker in parent
-                    }) {
-                        Text("SELECT FILE", color = ElectricBlue, fontWeight = FontWeight.Bold)
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showImportMenu = false }) {
-                        Text("CANCEL")
-                    }
-                }
-            )
-        }
-        
         // MELC Selector Dialog
         showMelcDialog?.let { questionNum ->
             MelcSelectorDialog(
