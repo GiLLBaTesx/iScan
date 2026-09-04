@@ -475,6 +475,36 @@ fun BackupManagementScreen(
             }
         )
     }
+    
+    // Success message snackbar
+    successMessage?.let { message ->
+        LaunchedEffect(message) {
+            kotlinx.coroutines.delay(3000)
+            successMessage = null
+        }
+        
+        Snackbar(
+            modifier = Modifier.padding(16.dp),
+            containerColor = IcyCyan
+        ) {
+            Text(message, color = Color.White)
+        }
+    }
+    
+    // Error message snackbar
+    errorMessage?.let { message ->
+        LaunchedEffect(message) {
+            kotlinx.coroutines.delay(5000)
+            errorMessage = null
+        }
+        
+        Snackbar(
+            modifier = Modifier.padding(16.dp),
+            containerColor = ErrorCoral
+        ) {
+            Text(message, color = Color.White)
+        }
+    }
 }
 
 @Composable
