@@ -9,10 +9,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -115,8 +113,8 @@ object BackupManager {
     }
     
     /**
-     * Restore database from backup file and restart app
-     * The app will automatically restart to load the restored database
+     * Restore database from backup file
+     * IMPORTANT: App MUST be restarted after restore for changes to take effect
      */
     suspend fun restoreBackup(context: Context, backupUri: Uri): Result<Boolean> {
         return try {
@@ -141,6 +139,20 @@ object BackupManager {
                 return Result.failure(Exception("Invalid or corrupted backup file"))
             }
             
+            // Force checkpoint and close database connections
+            try {
+                val db = android.database.sqlite.SQLiteDatabase.openDatabase(
+                    dbFile.absolutePath,
+                    null,
+                    android.database.sqlite.SQLiteDatabase.OPEN_READWRITE
+                )
+                // Force WAL checkpoint to flush all changes
+                db.rawQuery("PRAGMA wal_checkpoint(TRUNCATE)", null).close()
+                db.close()
+            } catch (e: Exception) {
+                Log.w(TAG, "Could not checkpoint database", e)
+            }
+            
             // Create backup of current database before replacing
             if (dbFile.exists()) {
                 val currentBackupDir = File(context.getExternalFilesDir(null), "backups")
@@ -150,30 +162,11 @@ object BackupManager {
                     currentBackupDir, 
                     "backup_before_restore_${dateFormat.format(Date())}.db"
                 )
-                try {
-                    dbFile.copyTo(currentBackupFile, overwrite = true)
-                    Log.i(TAG, "Created safety backup: ${currentBackupFile.name}")
-                } catch (e: Exception) {
-                    Log.w(TAG, "Could not create safety backup", e)
-                }
+                dbFile.copyTo(currentBackupFile, overwrite = true)
+                Log.i(TAG, "Created safety backup: ${currentBackupFile.name}")
             }
             
-            // Close database by killing the app process
-            // This ensures clean restore without file locks
-            try {
-                // Force checkpoint first
-                val db = android.database.sqlite.SQLiteDatabase.openDatabase(
-                    dbFile.absolutePath,
-                    null,
-                    android.database.sqlite.SQLiteDatabase.OPEN_READWRITE
-                )
-                db.rawQuery("PRAGMA wal_checkpoint(TRUNCATE)", null).close()
-                db.close()
-            } catch (e: Exception) {
-                Log.w(TAG, "Could not checkpoint database", e)
-            }
-            
-            // Delete WAL and SHM files
+            // Delete WAL and SHM files to ensure clean state
             shmFile.delete()
             walFile.delete()
             
@@ -181,11 +174,7 @@ object BackupManager {
             tempFile.copyTo(dbFile, overwrite = true)
             tempFile.delete()
             
-            Log.i(TAG, "Database restored successfully - restarting app...")
-            
-            // Restart the app immediately
-            restartApp(context)
-            
+            Log.i(TAG, "Database restored successfully - app restart required")
             Result.success(true)
             
         } catch (e: Exception) {
@@ -341,24 +330,6 @@ object BackupManager {
         } catch (e: Exception) {
             Log.e(TAG, "Export failed", e)
             Result.failure(e)
-        }
-    }
-    
-    /**
-     * Restart the app after restore
-     */
-    private fun restartApp(context: Context) {
-        try {
-            val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
-            intent?.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            intent?.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(intent)
-            
-            // Kill the current process to ensure clean restart
-            android.os.Process.killProcess(android.os.Process.myPid())
-            System.exit(0)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to restart app", e)
         }
     }
 }

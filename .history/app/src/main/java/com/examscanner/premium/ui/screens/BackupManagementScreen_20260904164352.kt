@@ -412,7 +412,7 @@ fun BackupManagementScreen(
                             showRestoreDialog = null
                             
                             if (result.isSuccess) {
-                                successMessage = "✓ Restore complete! Restarting app..."
+                                successMessage = "✓ Restore complete! RESTART the app to see restored data."
                                 onBackupRestored()
                             } else {
                                 errorMessage = "Restore failed: ${result.exceptionOrNull()?.message}"

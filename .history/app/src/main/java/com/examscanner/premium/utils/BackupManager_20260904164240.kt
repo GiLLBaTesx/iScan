@@ -343,22 +343,4 @@ object BackupManager {
             Result.failure(e)
         }
     }
-    
-    /**
-     * Restart the app after restore
-     */
-    private fun restartApp(context: Context) {
-        try {
-            val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
-            intent?.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            intent?.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(intent)
-            
-            // Kill the current process to ensure clean restart
-            android.os.Process.killProcess(android.os.Process.myPid())
-            System.exit(0)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to restart app", e)
-        }
-    }
 }
