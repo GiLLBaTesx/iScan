@@ -234,7 +234,7 @@ object TemplatePDFGenerator {
                 canvas,
                 startColumn2,
                 startYPosition,
-                questionsPerColumn + 1,
+                questionsPerQuestion + 1,
                 totalQuestions,
                 choicesPerQuestion,
                 bodyPaint,

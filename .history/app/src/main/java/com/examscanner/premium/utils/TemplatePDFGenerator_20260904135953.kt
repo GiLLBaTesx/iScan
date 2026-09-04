@@ -11,8 +11,8 @@ import kotlin.math.ceil
  * Template PDF Generator - Efficient 2-per-page layout
  * 
  * Creates printable answer sheet templates with:
- * - TWO templates per page (top half + bottom half) - SAVES PAPER!
- * - Dashed cut line between templates with scissors icon
+ * - TWO templates per page (top half + bottom half)
+ * - Dashed cut line between templates
  * - Two-column layout per template (questions split evenly)
  * - Compact design for maximum efficiency
  * - Student info section on each template
@@ -43,28 +43,28 @@ object TemplatePDFGenerator {
         // Paint objects
         val titlePaint = Paint().apply {
             color = Color.BLACK
-            textSize = 18f // Smaller title for compact design
+            textSize = 24f
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             isAntiAlias = true
         }
         
         val headerPaint = Paint().apply {
             color = Color.BLACK
-            textSize = 14f
+            textSize = 16f
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             isAntiAlias = true
         }
         
         val bodyPaint = Paint().apply {
             color = Color.BLACK
-            textSize = 10f // Smaller text for compact design
+            textSize = 12f
             isAntiAlias = true
         }
         
         val bubblePaint = Paint().apply {
             color = Color.BLACK
             style = Paint.Style.STROKE
-            strokeWidth = 1.5f
+            strokeWidth = 2f
             isAntiAlias = true
         }
         
@@ -73,140 +73,56 @@ object TemplatePDFGenerator {
             strokeWidth = 1f
         }
         
-        val dashedLinePaint = Paint().apply {
-            color = Color.GRAY
-            strokeWidth = 1.5f
-            pathEffect = DashPathEffect(floatArrayOf(10f, 5f), 0f)
-        }
-        
-        // Draw TOP template (first half)
-        drawSingleTemplate(
-            canvas,
-            0f,
-            1,
-            templateName,
-            totalQuestions,
-            choicesPerQuestion,
-            titlePaint,
-            headerPaint,
-            bodyPaint,
-            bubblePaint,
-            linePaint
-        )
-        
-        // Draw cut line with scissors icon
-        val cutLineY = TEMPLATE_HEIGHT.toFloat() + 5
-        canvas.drawLine(0f, cutLineY, PAGE_WIDTH.toFloat(), cutLineY, dashedLinePaint)
-        
-        // Add "✂ CUT HERE ✂" text
-        val cutPaint = Paint(bodyPaint).apply {
-            textSize = 10f
-            textAlign = Paint.Align.CENTER
-        }
-        canvas.drawText("✂ CUT HERE ✂", PAGE_WIDTH / 2f, cutLineY - 3, cutPaint)
-        
-        // Draw BOTTOM template (second half)
-        drawSingleTemplate(
-            canvas,
-            TEMPLATE_HEIGHT.toFloat() + 10,
-            2,
-            templateName,
-            totalQuestions,
-            choicesPerQuestion,
-            titlePaint,
-            headerPaint,
-            bodyPaint,
-            bubblePaint,
-            linePaint
-        )
-        
-        document.finishPage(page)
-        
-        // Save to external storage where FileProvider can access it
-        val outputDir = File(context.getExternalFilesDir(null), "Templates")
-        if (!outputDir.exists()) {
-            outputDir.mkdirs()
-        }
-        
-        val timestamp = System.currentTimeMillis()
-        val outputFile = File(outputDir, "${templateName.replace(" ", "_")}_2up_$timestamp.pdf")
-        
-        try {
-            val outputStream = FileOutputStream(outputFile)
-            document.writeTo(outputStream)
-            outputStream.flush()
-            outputStream.close()
-            document.close()
-            return outputFile
-        } catch (e: Exception) {
-            document.close()
-            throw Exception("Failed to generate template: ${e.message}", e)
-        }
-    }
-    
-    private fun drawSingleTemplate(
-        canvas: Canvas,
-        startY: Float,
-        templateNumber: Int,
-        templateName: String,
-        totalQuestions: Int,
-        choicesPerQuestion: Int,
-        titlePaint: Paint,
-        headerPaint: Paint,
-        bodyPaint: Paint,
-        bubblePaint: Paint,
-        linePaint: Paint
-    ) {
-        var yPosition = startY + MARGIN
+        var yPosition = MARGIN.toFloat()
         
         // HEADER SECTION
-        canvas.drawText("$templateName (#$templateNumber)", MARGIN.toFloat(), yPosition, titlePaint)
-        yPosition += 20
+        canvas.drawText(templateName, MARGIN.toFloat(), yPosition, titlePaint)
+        yPosition += 30
         
-        canvas.drawText("$totalQuestions Questions", MARGIN.toFloat(), yPosition, bodyPaint)
-        yPosition += 20
+        canvas.drawText("Answer Sheet - $totalQuestions Questions", MARGIN.toFloat(), yPosition, bodyPaint)
+        yPosition += 30
         
         // Student Info Section
         canvas.drawLine(MARGIN.toFloat(), yPosition, (PAGE_WIDTH - MARGIN).toFloat(), yPosition, linePaint)
-        yPosition += 12
+        yPosition += 15
         
         // Name field
         canvas.drawText("Name:", MARGIN.toFloat(), yPosition, bodyPaint)
         canvas.drawLine(
-            (MARGIN + 60).toFloat(),
-            yPosition + 3,
+            (MARGIN + 80).toFloat(),
+            yPosition + 5,
             (PAGE_WIDTH - MARGIN).toFloat(),
-            yPosition + 3,
+            yPosition + 5,
             linePaint
         )
-        yPosition += 18
+        yPosition += 25
         
         // Date and Score fields
         canvas.drawText("Date:", MARGIN.toFloat(), yPosition, bodyPaint)
         canvas.drawLine(
-            (MARGIN + 60).toFloat(),
-            yPosition + 3,
-            (MARGIN + 180).toFloat(),
-            yPosition + 3,
+            (MARGIN + 70).toFloat(),
+            yPosition + 5,
+            (MARGIN + 220).toFloat(),
+            yPosition + 5,
             linePaint
         )
         
-        canvas.drawText("Score:", (MARGIN + 200).toFloat(), yPosition, bodyPaint)
+        canvas.drawText("Score:", (MARGIN + 250).toFloat(), yPosition, bodyPaint)
         canvas.drawLine(
-            (MARGIN + 260).toFloat(),
-            yPosition + 3,
+            (MARGIN + 320).toFloat(),
+            yPosition + 5,
             (PAGE_WIDTH - MARGIN).toFloat(),
-            yPosition + 3,
+            yPosition + 5,
             linePaint
         )
-        yPosition += 20
+        yPosition += 35
         
         canvas.drawLine(MARGIN.toFloat(), yPosition, (PAGE_WIDTH - MARGIN).toFloat(), yPosition, linePaint)
-        yPosition += 15
+        yPosition += 20
         
         // Instructions
-        canvas.drawText("Instructions: Fill bubbles completely. Use #2 pencil.", MARGIN.toFloat(), yPosition, bodyPaint)
-        yPosition += 18
+        canvas.drawText("Instructions: Fill bubbles completely. Use #2 pencil or dark pen.", MARGIN.toFloat(), yPosition, bodyPaint)
+        yPosition += 30
         
         // QUESTIONS SECTION - TWO COLUMNS
         val questionsPerColumn = ceil(totalQuestions / 2.0).toInt()
@@ -241,6 +157,38 @@ object TemplatePDFGenerator {
                 bubblePaint
             )
         }
+        
+        // Footer - Template ID
+        val footerY = (PAGE_HEIGHT - 30).toFloat()
+        canvas.drawText(
+            "Template: $templateName | Questions: $totalQuestions | Choices: $choicesPerQuestion",
+            MARGIN.toFloat(),
+            footerY,
+            bodyPaint.apply { textSize = 10f }
+        )
+        
+        document.finishPage(page)
+        
+        // Save to external storage where FileProvider can access it
+        val outputDir = File(context.getExternalFilesDir(null), "Templates")
+        if (!outputDir.exists()) {
+            outputDir.mkdirs()
+        }
+        
+        val timestamp = System.currentTimeMillis()
+        val outputFile = File(outputDir, "${templateName.replace(" ", "_")}_$timestamp.pdf")
+        
+        try {
+            val outputStream = FileOutputStream(outputFile)
+            document.writeTo(outputStream)
+            outputStream.flush()
+            outputStream.close()
+            document.close()
+            return outputFile
+        } catch (e: Exception) {
+            document.close()
+            throw Exception("Failed to generate template: ${e.message}", e)
+        }
     }
     
     private fun drawQuestionColumn(
@@ -260,32 +208,32 @@ object TemplatePDFGenerator {
             canvas.drawText(
                 String.format("%2d.", questionNum),
                 startX.toFloat(),
-                yPos + 13,
+                yPos + 15,
                 textPaint
             )
             
             // Answer bubbles
-            var bubbleX = startX + 35f
+            var bubbleX = startX + 40f
             repeat(choicesPerQuestion) { index ->
                 val letter = ('A' + index).toString()
                 
                 // Draw bubble circle
                 canvas.drawCircle(
                     bubbleX + BUBBLE_SIZE / 2,
-                    yPos + 8,
+                    yPos + 10,
                     BUBBLE_SIZE / 2,
                     bubblePaint
                 )
                 
                 // Draw letter inside
                 val letterPaint = Paint(textPaint).apply {
-                    textSize = 9f
+                    textSize = 10f
                     textAlign = Paint.Align.CENTER
                 }
                 canvas.drawText(
                     letter,
                     bubbleX + BUBBLE_SIZE / 2,
-                    yPos + 12,
+                    yPos + 14,
                     letterPaint
                 )
                 
