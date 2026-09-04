@@ -336,9 +336,9 @@ fun MelcItemCard(
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    MelcTag(melc.subject, Color(0xFF2196F3)) // Blue
-                    MelcTag("Grade ${melc.gradeLevel}", Color(0xFF9C27B0)) // Purple
-                    MelcTag("Q${melc.quarter}", Color(0xFFFF9800)) // Orange
+                    CompetencyChip(melc.subject, Color(0xFF2196F3)) // Blue
+                    CompetencyChip("Grade ${melc.gradeLevel}", Color(0xFF9C27B0)) // Purple
+                    CompetencyChip("Q${melc.quarter}", Color(0xFFFF9800)) // Orange
                 }
             }
             
@@ -355,7 +355,7 @@ fun MelcItemCard(
 }
 
 @Composable
-fun MelcTag(text: String, color: Color) {
+fun CompetencyChip(text: String, color: Color) {
     Surface(
         shape = RoundedCornerShape(4.dp),
         color = color.copy(alpha = 0.15f)
