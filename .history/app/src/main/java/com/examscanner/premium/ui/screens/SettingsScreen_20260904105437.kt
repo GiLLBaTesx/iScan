@@ -89,8 +89,8 @@ fun SettingsScreen(
                 SettingsGroup {
                     SettingsItem(
                         icon = Icons.Default.Download,
-                        title = "Download Built-in Templates",
-                        subtitle = "Quick access to standard answer sheets",
+                        title = "Quick Download Templates",
+                        subtitle = "20Q, 40Q, 60Q, 80Q, 100Q - ready to print",
                         onClick = { showTemplateDialog = true }
                     )
                     
@@ -99,7 +99,7 @@ fun SettingsScreen(
                     SettingsItem(
                         icon = Icons.Default.Edit,
                         title = "Create Custom Template",
-                        subtitle = "Generate custom bubble sheet templates",
+                        subtitle = "Design your own bubble sheet layout",
                         onClick = onCreateTemplate
                     )
                 }
@@ -108,7 +108,6 @@ fun SettingsScreen(
                 SectionHeader("Application")
                 
                 SettingsGroup {
-                    SettingsItem(
                         icon = Icons.Default.Info,
                         title = "About",
                         subtitle = "Version 1.0.0",
@@ -255,89 +254,6 @@ fun SettingsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showClearDataDialog = false }) {
-                    Text("CANCEL", color = Color(0xFF8E8E93))
-                }
-            }
-        )
-    }
-    
-    // Template Download Dialog
-    if (showTemplateDialog) {
-        AlertDialog(
-            onDismissRequest = { showTemplateDialog = false },
-            title = {
-                Text(
-                    text = "Download Answer Sheet Template",
-                    fontWeight = FontWeight.Bold
-                )
-            },
-            text = {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = "Select a standard template to download:",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF8E8E93)
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    // Quick template options
-                    listOf(
-                        "Quick 20" to 20,
-                        "Quick 30" to 30,
-                        "Quick 50" to 50,
-                        "Quick 75" to 75,
-                        "Quick 100" to 100
-                    ).forEach { (name, questions) ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    showTemplateDialog = false
-                                    onDownloadTemplate(name, questions)
-                                },
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color(0xFFF2F2F7)
-                            )
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    Icons.Default.Description,
-                                    contentDescription = null,
-                                    tint = Color(0xFF007AFF)
-                                )
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = name,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = Color(0xFF1C1C1E)
-                                    )
-                                    Text(
-                                        text = "$questions questions • 4 choices (A-D)",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = Color(0xFF8E8E93)
-                                    )
-                                }
-                                Icon(
-                                    Icons.Default.Download,
-                                    contentDescription = null,
-                                    tint = Color(0xFF007AFF)
-                                )
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showTemplateDialog = false }) {
                     Text("CANCEL", color = Color(0xFF8E8E93))
                 }
             }

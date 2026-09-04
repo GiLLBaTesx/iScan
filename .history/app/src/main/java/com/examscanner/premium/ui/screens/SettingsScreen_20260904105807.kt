@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -89,8 +90,8 @@ fun SettingsScreen(
                 SettingsGroup {
                     SettingsItem(
                         icon = Icons.Default.Download,
-                        title = "Download Built-in Templates",
-                        subtitle = "Quick access to standard answer sheets",
+                        title = "Quick Download Templates",
+                        subtitle = "20Q, 40Q, 60Q, 80Q, 100Q - ready to print",
                         onClick = { showTemplateDialog = true }
                     )
                     
@@ -99,7 +100,7 @@ fun SettingsScreen(
                     SettingsItem(
                         icon = Icons.Default.Edit,
                         title = "Create Custom Template",
-                        subtitle = "Generate custom bubble sheet templates",
+                        subtitle = "Design your own bubble sheet layout",
                         onClick = onCreateTemplate
                     )
                 }
@@ -108,7 +109,6 @@ fun SettingsScreen(
                 SectionHeader("Application")
                 
                 SettingsGroup {
-                    SettingsItem(
                         icon = Icons.Default.Info,
                         title = "About",
                         subtitle = "Version 1.0.0",
@@ -260,89 +260,6 @@ fun SettingsScreen(
             }
         )
     }
-    
-    // Template Download Dialog
-    if (showTemplateDialog) {
-        AlertDialog(
-            onDismissRequest = { showTemplateDialog = false },
-            title = {
-                Text(
-                    text = "Download Answer Sheet Template",
-                    fontWeight = FontWeight.Bold
-                )
-            },
-            text = {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = "Select a standard template to download:",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF8E8E93)
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    // Quick template options
-                    listOf(
-                        "Quick 20" to 20,
-                        "Quick 30" to 30,
-                        "Quick 50" to 50,
-                        "Quick 75" to 75,
-                        "Quick 100" to 100
-                    ).forEach { (name, questions) ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    showTemplateDialog = false
-                                    onDownloadTemplate(name, questions)
-                                },
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color(0xFFF2F2F7)
-                            )
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    Icons.Default.Description,
-                                    contentDescription = null,
-                                    tint = Color(0xFF007AFF)
-                                )
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = name,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = Color(0xFF1C1C1E)
-                                    )
-                                    Text(
-                                        text = "$questions questions • 4 choices (A-D)",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = Color(0xFF8E8E93)
-                                    )
-                                }
-                                Icon(
-                                    Icons.Default.Download,
-                                    contentDescription = null,
-                                    tint = Color(0xFF007AFF)
-                                )
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showTemplateDialog = false }) {
-                    Text("CANCEL", color = Color(0xFF8E8E93))
-                }
-            }
-        )
-    }
 }
 
 @Composable
@@ -422,5 +339,94 @@ private fun getAppSize(context: Context): String {
         totalBytes < 1024 -> "$totalBytes B"
         totalBytes < 1024 * 1024 -> "${totalBytes / 1024} KB"
         else -> "${totalBytes / (1024 * 1024)} MB"
+    }
+}
+
+    
+    // Template Download Dialog
+    if (showTemplateDialog) {
+        val templates = remember {
+            listOf(
+                "OMR 20 Questions" to 20,
+                "OMR 40 Questions" to 40,
+                "OMR 60 Questions" to 60,
+                "OMR 80 Questions" to 80,
+                "OMR 100 Questions" to 100
+            )
+        }
+        
+        AlertDialog(
+            onDismissRequest = { showTemplateDialog = false },
+            title = {
+                Column {
+                    Text(
+                        text = "Quick Download Templates",
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Select a template to download and print",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 400.dp)
+                ) {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(templates.size) { index ->
+                            val (name, questions) = templates[index]
+                            com.examscanner.premium.ui.components.FrostedGlassCard(
+                                onClick = {
+                                    onDownloadTemplate(name, questions)
+                                    showTemplateDialog = false
+                                }
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = name,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = "$questions questions • 4 choices (A-D)",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                    Icon(
+                                        Icons.Default.Download,
+                                        contentDescription = "Download",
+                                        tint = Color(0xFF007AFF)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showTemplateDialog = false }) {
+                    Text("CLOSE", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     }
 }

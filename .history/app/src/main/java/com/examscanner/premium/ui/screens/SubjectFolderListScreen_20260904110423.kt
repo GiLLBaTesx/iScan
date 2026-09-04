@@ -39,8 +39,8 @@ fun SubjectFolderListScreen(
     var showDeleteDialog by remember { mutableStateOf<SubjectFolderEntity?>(null) }
     var showRenameDialog by remember { mutableStateOf<SubjectFolderEntity?>(null) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
-    var showOptionsMenu by remember { mutableStateOf(false) }
     var showTemplateDialog by remember { mutableStateOf(false) }
+    var showOptionsMenu by remember { mutableStateOf(false) }
     val context = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
     

@@ -167,25 +167,20 @@ object TemplatePDFGenerator {
         
         document.finishPage(page)
         
-        // Save to external storage where FileProvider can access it
-        val outputDir = File(context.getExternalFilesDir(null), "Templates")
-        if (!outputDir.exists()) {
-            outputDir.mkdirs()
-        }
-        
-        val timestamp = System.currentTimeMillis()
-        val outputFile = File(outputDir, "${templateName.replace(" ", "_")}_$timestamp.pdf")
+        // Save to file
+        val outputDir = File(context.filesDir, "templates")
+        outputDir.mkdirs()
+        val outputFile = File(outputDir, "${templateName.replace(" ", "_")}_${System.currentTimeMillis()}.pdf")
         
         try {
             val outputStream = FileOutputStream(outputFile)
             document.writeTo(outputStream)
-            outputStream.flush()
             outputStream.close()
             document.close()
             return outputFile
         } catch (e: Exception) {
             document.close()
-            throw Exception("Failed to generate template: ${e.message}", e)
+            throw e
         }
     }
     
