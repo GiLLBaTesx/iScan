@@ -163,8 +163,8 @@ fun SettingsScreen(
                     SettingsItem(
                         icon = Icons.Default.FolderDelete,
                         title = "Recycle Bin",
-                        subtitle = "Manage deleted items (Coming soon)",
-                        onClick = { /* Recycle bin - future feature */ }
+                        subtitle = "Manage deleted items",
+                        onClick = { /* TODO: Recycle bin screen */ }
                     )
                 }
                 
@@ -175,8 +175,8 @@ fun SettingsScreen(
                     SettingsItem(
                         icon = Icons.Default.Security,
                         title = "Privacy Policy",
-                        subtitle = "How we handle your data (Coming soon)",
-                        onClick = { /* Privacy policy - future feature */ }
+                        subtitle = "How we handle your data",
+                        onClick = { /* TODO: Privacy policy */ }
                     )
                 }
                 

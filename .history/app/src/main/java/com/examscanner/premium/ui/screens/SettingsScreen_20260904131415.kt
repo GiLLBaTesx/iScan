@@ -175,8 +175,8 @@ fun SettingsScreen(
                     SettingsItem(
                         icon = Icons.Default.Security,
                         title = "Privacy Policy",
-                        subtitle = "How we handle your data (Coming soon)",
-                        onClick = { /* Privacy policy - future feature */ }
+                        subtitle = "How we handle your data",
+                        onClick = { /* TODO: Privacy policy */ }
                     )
                 }
                 

@@ -35,8 +35,7 @@ fun StudentRosterScreen(
     onAddStudent: (studentId: String, name: String, gradeLevel: String, contactInfo: String) -> Unit,
     onEditStudent: (StudentEntity, String, String, String) -> Unit,
     onDeleteStudent: (StudentEntity) -> Unit,
-    onImportCSV: (Uri) -> Unit,
-    onExportRoster: () -> Unit = {}
+    onImportCSV: (Uri) -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
@@ -102,7 +101,7 @@ fun StudentRosterScreen(
                                 text = { Text("Export Roster") },
                                 onClick = {
                                     showMenu = false
-                                    onExportRoster()
+                                    // TODO: Export functionality
                                 },
                                 leadingIcon = {
                                     Icon(Icons.Default.FileDownload, null)

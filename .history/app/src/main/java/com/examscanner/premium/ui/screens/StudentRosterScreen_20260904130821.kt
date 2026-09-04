@@ -102,7 +102,7 @@ fun StudentRosterScreen(
                                 text = { Text("Export Roster") },
                                 onClick = {
                                     showMenu = false
-                                    onExportRoster()
+                                    // TODO: Export functionality
                                 },
                                 leadingIcon = {
                                     Icon(Icons.Default.FileDownload, null)
