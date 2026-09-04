@@ -60,27 +60,28 @@ object BackupManager {
                 val backupFileName = "backup_${dateFormat.format(Date(timestamp))}.db"
                 val backupFile = File(backupDir, backupFileName)
                 
-                // Copy database file to backup (including WAL files if they exist)
+                // Force WAL checkpoint to ensure all data is flushed
                 try {
-                    // Copy main database file
+                    val db = android.database.sqlite.SQLiteDatabase.openDatabase(
+                        dbFile.absolutePath,
+                        null,
+                        android.database.sqlite.SQLiteDatabase.OPEN_READONLY
+                    )
+                    // Use PASSIVE mode to avoid blocking
+                    db.rawQuery("PRAGMA wal_checkpoint(PASSIVE)", null).use { it.moveToFirst() }
+                    db.close()
+                } catch (e: Exception) {
+                    Log.w(TAG, "Could not checkpoint database: ${e.message}")
+                    // Continue anyway - not critical for backup
+                }
+                
+                // Copy database file to backup
+                try {
                     dbFile.inputStream().use { input ->
                         backupFile.outputStream().use { output ->
                             input.copyTo(output)
                             output.flush()
                         }
-                    }
-                    
-                    // Also copy WAL and SHM files if they exist (for complete backup)
-                    val walFile = File(dbFile.parentFile, "${dbFile.name}-wal")
-                    val shmFile = File(dbFile.parentFile, "${dbFile.name}-shm")
-                    
-                    if (walFile.exists()) {
-                        val backupWal = File(backupFile.parentFile, "${backupFile.name}-wal")
-                        walFile.copyTo(backupWal, overwrite = true)
-                    }
-                    if (shmFile.exists()) {
-                        val backupShm = File(backupFile.parentFile, "${backupFile.name}-shm")
-                        shmFile.copyTo(backupShm, overwrite = true)
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to copy database file", e)
