@@ -297,13 +297,15 @@ fun AnswerKeyItem(
                                 .clip(RoundedCornerShape(20.dp))
                                 .background(
                                     if (selectedMelc != null) {
+                                        // Solid ElectricBlue when tagged
                                         androidx.compose.ui.graphics.Brush.horizontalGradient(
                                             colors = listOf(
-                                                IcyCyan,
-                                                IcyCyan.copy(alpha = 0.8f)
+                                                ElectricBlue,
+                                                ElectricBlue
                                             )
                                         )
                                     } else {
+                                        // Glass base when not tagged
                                         androidx.compose.ui.graphics.Brush.horizontalGradient(
                                             colors = listOf(
                                                 GlassBase,
@@ -313,8 +315,8 @@ fun AnswerKeyItem(
                                     }
                                 )
                                 .border(
-                                    width = if (selectedMelc != null) 0.dp else 1.dp,
-                                    color = if (selectedMelc != null) androidx.compose.ui.graphics.Color.Transparent else ElectricBlue.copy(alpha = 0.3f),
+                                    width = if (selectedMelc != null) 0.dp else 1.5.dp,
+                                    color = if (selectedMelc != null) androidx.compose.ui.graphics.Color.Transparent else ElectricBlue.copy(alpha = 0.4f),
                                     shape = RoundedCornerShape(20.dp)
                                 )
                                 .clickable { onMelcClick() }
@@ -356,7 +358,7 @@ fun AnswerKeyItem(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
-                            IcyCyan.copy(alpha = 0.15f),
+                            IcyCyan.copy(alpha = 0.12f), // Subtle icy cyan tint
                             RoundedCornerShape(8.dp)
                         )
                         .padding(8.dp),
@@ -381,26 +383,17 @@ fun AnswerButton(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    // Multi-color answer buttons (ScanKey style)
-    val buttonColor = when (answer) {
-        "A" -> AnswerA
-        "B" -> AnswerB
-        "C" -> AnswerC
-        "D" -> AnswerD
-        "E" -> AnswerE
-        else -> ElectricBlue
-    }
-    
+    // Novelty Azure Glass answer buttons - unified light blue when selected
     Box(
         modifier = Modifier
             .size(50.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(
-                if (isSelected) buttonColor else GlassBase
+                if (isSelected) LuminousAzure else IceWhite // All selected = light blue
             )
             .border(
                 width = 2.dp,
-                color = if (isSelected) buttonColor else buttonColor.copy(alpha = 0.4f),
+                color = if (isSelected) LuminousAzure else ElectricBlue.copy(alpha = 0.2f),
                 shape = RoundedCornerShape(12.dp)
             )
             .clickable { onClick() },
@@ -410,7 +403,7 @@ fun AnswerButton(
             text = answer,
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            color = if (isSelected) androidx.compose.ui.graphics.Color.White else buttonColor
+            color = if (isSelected) androidx.compose.ui.graphics.Color.White else TextSecondaryIce
         )
     }
 }

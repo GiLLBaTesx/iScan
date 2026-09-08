@@ -458,11 +458,18 @@ abstract class AppDatabase : RoomDatabase() {
         
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
+                // Get encryption passphrase from secure storage
+                val passphrase = com.examscanner.premium.utils.EncryptionKeyManager.getDatabasePassphrase(context)
+                val factory = net.sqlcipher.database.SupportFactory(
+                    net.sqlcipher.database.SQLiteDatabase.getBytes(passphrase)
+                )
+                
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
                     "exam_scanner_database"
                 )
+                .openHelperFactory(factory)  // Enable SQLCipher encryption
                 .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                 .addCallback(object : RoomDatabase.Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {

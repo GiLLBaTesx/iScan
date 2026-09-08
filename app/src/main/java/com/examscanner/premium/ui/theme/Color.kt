@@ -4,10 +4,12 @@ import androidx.compose.ui.graphics.Color
 
 // ==================== NOVELTY AZURE GLASS THEME ====================
 
-// Core Chromatics (Electric Blue System)
-val ElectricBlue = Color(0xFF0052FF) // Primary - Electric Cerulean
+// Core Chromatics (Electric Blue System - Novelty Azure Glass)
+val ElectricBlue = Color(0xFF03045E) // Ultramarine Midnight - Very dark blue (per spec)
+val ElectricBlueContainer = Color(0xFF0052FF) // Primary Container
+val ElectricCerulean = Color(0xFF0066FF) // Electric Cerulean - brighter variant
 val ElectricBlueDark = Color(0xFF0047AB) // Cobalt Core
-val IcyCyan = Color(0xFF00B4D8) // Secondary - Icy Azure
+val IcyCyan = Color(0xFF00B4D8) // Secondary - Icy Azure  
 val DeepUltramarine = Color(0xFF1E1B4B) // Tertiary - Deep Navy
 val MidnightNavy = Color(0xFF0A1128) // Neutral Dark
 
@@ -92,11 +94,12 @@ val DarkTextSecondary = Color(0xFFADB5BD)
 val DarkTextTertiary = Color(0xFF6C7A89)
 val DarkDivider = Color(0xFF2A3038)
 val DarkBorder = Color(0xFF343A46)
-val AnswerA = Color(0xFFFF6B6B)
-val AnswerB = Color(0xFF4DABF7)
-val AnswerC = Color(0xFFFFB84D)
-val AnswerD = Color(0xFFFF5252)
-val AnswerE = Color(0xFF9775FA)
+// Answer choice colors (Novelty Azure Glass palette)
+val AnswerA = Color(0xFFFF6B6B) // Soft coral red - keep for distinction
+val AnswerB = Color(0xFF38BDF8) // Luminous Azure - from spec
+val AnswerC = Color(0xFFFFB84D) // Warm amber - keep for distinction
+val AnswerD = Color(0xFFFF8787) // Light coral - softer red
+val AnswerE = Color(0xFF9775FA) // Purple - keep for E option
 val DarkAnswerA = Color(0xFFFF6B6B)
 val DarkAnswerB = Color(0xFF4DABF7)
 val DarkAnswerC = Color(0xFFFFB84D)

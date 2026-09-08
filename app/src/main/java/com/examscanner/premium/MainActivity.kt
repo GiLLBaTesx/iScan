@@ -35,6 +35,8 @@ import com.examscanner.premium.ui.screens.*
 import com.examscanner.premium.ui.screens.auth.*
 import com.examscanner.premium.ui.theme.ExamScannerTheme
 import com.examscanner.premium.utils.ExportUtility
+import com.examscanner.premium.utils.RootDetector
+import com.examscanner.premium.utils.SecureLogger
 import com.examscanner.premium.viewmodel.ExamViewModel
 import com.examscanner.premium.viewmodel.ExamViewModelFactory
 import kotlinx.coroutines.launch
@@ -43,13 +45,20 @@ import java.io.File
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Security Check: Detect rooted devices
+        val isRooted = RootDetector.isDeviceRooted()
+        if (isRooted) {
+            SecureLogger.w("MainActivity", "Root detected: ${RootDetector.getRootDetails()}")
+        }
+        
         setContent {
             ExamScannerTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    ExamScannerApp()
+                    ExamScannerApp(showRootWarning = isRooted)
                 }
             }
         }
@@ -57,7 +66,22 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ExamScannerApp() {
+fun ExamScannerApp(showRootWarning: Boolean = false) {
+    var rootWarningDismissed by remember { mutableStateOf(false) }
+    
+    // Show security warning if device is rooted
+    if (showRootWarning && !rootWarningDismissed) {
+        SecurityWarningScreen(
+            warningMessage = "Rooted Device Detected",
+            details = "This device appears to be rooted. Student exam data may be at risk.",
+            onProceedAnyway = { rootWarningDismissed = true },
+            onExit = { 
+                // Exit app
+                android.os.Process.killProcess(android.os.Process.myPid())
+            }
+        )
+        return
+    }
     val context = LocalContext.current
     val navController = rememberNavController()
     
@@ -73,8 +97,8 @@ fun ExamScannerApp() {
     var currentExamId by remember { mutableStateOf<Long?>(null) }
     var capturedImageUri by remember { mutableStateOf<Uri?>(null) }
     
-    // Authentication disabled for testing - will enable after Firebase setup
-    // Start with subject folders (organized approach)
+    // Firebase Authentication ready (currently disabled)
+    // No live sync - all data stays local
     NavHost(navController = navController, startDestination = "subject_folders") {
         // Subject Folders Screen (Home)
         composable("subject_folders") {
@@ -149,14 +173,71 @@ fun ExamScannerApp() {
                 onClearData = {
                     scope.launch {
                         try {
-                            repository.clearAllData()
-                            Toast.makeText(context, "All data cleared successfully", Toast.LENGTH_SHORT).show()
+                            val backupMessage = repository.clearAllData(context)
+                            Toast.makeText(
+                                context, 
+                                "All data cleared. $backupMessage", 
+                                Toast.LENGTH_LONG
+                            ).show()
                             navController.popBackStack()
                         } catch (e: Exception) {
                             Toast.makeText(context, "Clear data failed: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
                     }
+                },
+                onPrivacyPolicy = {
+                    navController.navigate("privacy_policy")
+                },
+                onRecycleBin = {
+                    navController.navigate("recycle_bin")
                 }
+            )
+        }
+        
+        // Recycle Bin Screen
+        composable("recycle_bin") {
+            val deletedExams by repository.getDeletedExams().collectAsState(initial = emptyList())
+            
+            RecycleBinScreen(
+                deletedExams = deletedExams,
+                onBack = { navController.popBackStack() },
+                onRestore = { exam ->
+                    scope.launch {
+                        try {
+                            repository.restoreExam(exam.id)
+                            Toast.makeText(context, "\"${exam.name}\" restored", Toast.LENGTH_SHORT).show()
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Restore failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                },
+                onPermanentDelete = { exam ->
+                    scope.launch {
+                        try {
+                            repository.permanentlyDeleteExam(exam)
+                            Toast.makeText(context, "\"${exam.name}\" permanently deleted", Toast.LENGTH_SHORT).show()
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Delete failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                },
+                onEmptyRecycleBin = {
+                    scope.launch {
+                        try {
+                            repository.emptyRecycleBin()
+                            Toast.makeText(context, "Recycle bin emptied", Toast.LENGTH_SHORT).show()
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Failed to empty bin: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            )
+        }
+        
+        // Privacy Policy Screen
+        composable("privacy_policy") {
+            PrivacyPolicyScreen(
+                onBack = { navController.popBackStack() }
             )
         }
         
@@ -165,10 +246,14 @@ fun ExamScannerApp() {
             BackupManagementScreen(
                 onBack = { navController.popBackStack() },
                 onBackupCreated = {
-                    Toast.makeText(context, "Backup created successfully!", Toast.LENGTH_SHORT).show()
+                    // Success message already shown in BackupManagementScreen
                 },
                 onBackupRestored = {
-                    Toast.makeText(context, "Database restored! Please restart the app.", Toast.LENGTH_LONG).show()
+                    // Give user time to see the success message before restarting
+                    scope.launch {
+                        kotlinx.coroutines.delay(5000) // 5 second delay
+                        android.os.Process.killProcess(android.os.Process.myPid())
+                    }
                 }
             )
         }

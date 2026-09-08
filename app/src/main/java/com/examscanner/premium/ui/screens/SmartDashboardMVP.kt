@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.sp
 import com.examscanner.premium.data.*
 import com.examscanner.premium.ui.components.FloatingGlassCard
 import com.examscanner.premium.ui.theme.*
+import com.examscanner.premium.utils.AnalyticsExporter
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 /**
@@ -40,6 +42,10 @@ fun SmartDashboardMVP(
     onExportPDF: () -> Unit,
     onBack: () -> Unit
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val scope = rememberCoroutineScope()
+    var showExportMenu by remember { mutableStateOf(false) }
+    var isExporting by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(MVPTab.RETEACH) }
     
     // Calculate all analytics
@@ -95,8 +101,112 @@ fun SmartDashboardMVP(
                             )
                         }
                     }
-                    IconButton(onClick = onExportPDF) {
-                        Icon(Icons.Default.PictureAsPdf, "Export PDF", tint = ErrorRed)
+                    
+                    // Export Menu
+                    Box {
+                        IconButton(
+                            onClick = { showExportMenu = !showExportMenu },
+                            enabled = !isExporting
+                        ) {
+                            Icon(
+                                if (isExporting) Icons.Default.HourglassEmpty else Icons.Default.FileDownload,
+                                "Export Analytics",
+                                tint = ElectricBlue
+                            )
+                        }
+                        
+                        DropdownMenu(
+                            expanded = showExportMenu,
+                            onDismissRequest = { showExportMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { 
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(Icons.Default.Description, null, tint = ElectricBlue)
+                                        Text("Export to Excel (CSV)")
+                                    }
+                                },
+                                onClick = {
+                                    showExportMenu = false
+                                    isExporting = true
+                                    scope.launch {
+                                        val result = AnalyticsExporter.exportToCSV(
+                                            context,
+                                            examName,
+                                            students,
+                                            answerKeys,
+                                            studentAnswers,
+                                            questionMelcMappings
+                                        )
+                                        isExporting = false
+                                        if (result.isSuccess) {
+                                            val file = result.getOrNull()
+                                            file?.let {
+                                                AnalyticsExporter.shareFile(context, it, "text/csv")
+                                                android.widget.Toast.makeText(
+                                                    context,
+                                                    "✓ Excel file exported: ${it.name}",
+                                                    android.widget.Toast.LENGTH_LONG
+                                                ).show()
+                                            }
+                                        } else {
+                                            android.widget.Toast.makeText(
+                                                context,
+                                                "Export failed: ${result.exceptionOrNull()?.message}",
+                                                android.widget.Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    }
+                                }
+                            )
+                            
+                            DropdownMenuItem(
+                                text = { 
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(Icons.Default.PictureAsPdf, null, tint = ErrorCoral)
+                                        Text("Export to PDF")
+                                    }
+                                },
+                                onClick = {
+                                    showExportMenu = false
+                                    isExporting = true
+                                    scope.launch {
+                                        val result = AnalyticsExporter.exportToPDF(
+                                            context,
+                                            examName,
+                                            students,
+                                            answerKeys,
+                                            studentAnswers,
+                                            questionMelcMappings
+                                        )
+                                        isExporting = false
+                                        if (result.isSuccess) {
+                                            val file = result.getOrNull()
+                                            file?.let {
+                                                AnalyticsExporter.shareFile(context, it, "text/plain")
+                                                android.widget.Toast.makeText(
+                                                    context,
+                                                    "✓ PDF report exported: ${it.name}",
+                                                    android.widget.Toast.LENGTH_LONG
+                                                ).show()
+                                            }
+                                        } else {
+                                            android.widget.Toast.makeText(
+                                                context,
+                                                "Export failed: ${result.exceptionOrNull()?.message}",
+                                                android.widget.Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }

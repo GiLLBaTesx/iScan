@@ -2,4 +2,16 @@
 <full-backup-content>
     <!-- Exclude sensitive data from backup -->
     <exclude domain="sharedpref" path="." />
+    
+    <!-- Exclude Room database files -->
+    <exclude domain="database" path="exam_scanner.db" />
+    <exclude domain="database" path="exam_scanner.db-shm" />
+    <exclude domain="database" path="exam_scanner.db-wal" />
+    
+    <!-- Exclude exported analytics and backup files -->
+    <exclude domain="file" path="exports/" />
+    <exclude domain="file" path="backups/" />
+    
+    <!-- Exclude test sheets and temporary files -->
+    <exclude domain="file" path="test_sheets/" />
 </full-backup-content>
