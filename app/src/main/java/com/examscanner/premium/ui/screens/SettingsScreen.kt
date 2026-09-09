@@ -18,8 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.examscanner.premium.ui.components.FloatingGlassCard
-import com.examscanner.premium.ui.components.GlassCard
+import com.examscanner.premium.ui.components.*
+import com.examscanner.premium.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,7 +28,9 @@ fun SettingsScreen(
     onManageBackups: () -> Unit,
     onClearData: () -> Unit,
     onCreateTemplate: () -> Unit = {},
-    onDownloadTemplate: (String, Int) -> Unit = { _, _ -> }
+    onDownloadTemplate: (String, Int) -> Unit = { _, _ -> },
+    onPrivacyPolicy: () -> Unit = {},
+    onRecycleBin: () -> Unit = {}
 ) {
     val context = LocalContext.current
     var showAboutDialog by remember { mutableStateOf(false) }
@@ -61,7 +63,7 @@ fun SettingsScreen(
                     Icon(
                         Icons.Default.ArrowBack,
                         contentDescription = "Back",
-                        tint = Color(0xFF007AFF)
+                        tint = ElectricBlue
                     )
                 }
                 
@@ -141,7 +143,7 @@ fun SettingsScreen(
                     SettingsItem(
                         icon = Icons.Default.Delete,
                         title = "Clear All Data",
-                        subtitle = "Delete everything (cannot be undone)",
+                        subtitle = "Delete all data (auto-backup created first)",
                         onClick = { showClearDataDialog = true },
                         isDestructive = true
                     )
@@ -163,8 +165,8 @@ fun SettingsScreen(
                     SettingsItem(
                         icon = Icons.Default.FolderDelete,
                         title = "Recycle Bin",
-                        subtitle = "Manage deleted items (Coming soon)",
-                        onClick = { /* Recycle bin - future feature */ }
+                        subtitle = "Manage deleted items",
+                        onClick = onRecycleBin
                     )
                 }
                 
@@ -175,8 +177,8 @@ fun SettingsScreen(
                     SettingsItem(
                         icon = Icons.Default.Security,
                         title = "Privacy Policy",
-                        subtitle = "How we handle your data (Coming soon)",
-                        onClick = { /* Privacy policy - future feature */ }
+                        subtitle = "How we handle your data",
+                        onClick = onPrivacyPolicy
                     )
                 }
                 
@@ -216,7 +218,7 @@ fun SettingsScreen(
             },
             confirmButton = {
                 TextButton(onClick = { showAboutDialog = false }) {
-                    Text("CLOSE", color = Color(0xFF007AFF))
+                    Text("CLOSE", color = ElectricBlue)
                 }
             }
         )
@@ -224,39 +226,46 @@ fun SettingsScreen(
     
     // Clear Data Confirmation Dialog
     if (showClearDataDialog) {
-        AlertDialog(
+        UnifiedDialog(
             onDismissRequest = { showClearDataDialog = false },
-            icon = {
-                Icon(
-                    Icons.Default.Warning,
-                    contentDescription = null,
-                    tint = Color(0xFFFF3B30),
-                    modifier = Modifier.size(48.dp)
-                )
+            title = "Clear All Data?",
+            icon = Icons.Default.Warning,
+            isDangerous = true,
+            confirmText = "DELETE ALL",
+            dismissText = "CANCEL",
+            onConfirm = {
+                showClearDataDialog = false
+                onClearData()
             },
-            title = {
+            onDismiss = { showClearDataDialog = false },
+            content = {
                 Text(
-                    text = "Clear All Data?",
-                    fontWeight = FontWeight.Bold
+                    text = "⚠️ Important Safety Notice",
+                    fontWeight = FontWeight.Bold,
+                    color = WarningAmber
                 )
-            },
-            text = {
-                Text("This will permanently delete:\n\n• All subject folders\n• All exams and answer keys\n• All student records\n• All scan results\n\nThis action cannot be undone!")
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showClearDataDialog = false
-                        onClearData()
-                    }
-                ) {
-                    Text("DELETE ALL", color = Color(0xFFFF3B30))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showClearDataDialog = false }) {
-                    Text("CANCEL", color = Color(0xFF8E8E93))
-                }
+                Text("A safety backup will be created automatically before clearing your data.")
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Text(
+                    text = "This will permanently delete:",
+                    fontWeight = FontWeight.SemiBold,
+                    color = TextPrimaryIce
+                )
+                Text("• All subject folders", color = TextSecondaryIce)
+                Text("• All exams and answer keys", color = TextSecondaryIce)
+                Text("• All student records", color = TextSecondaryIce)
+                Text("• All scan results", color = TextSecondaryIce)
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Text(
+                    text = "✓ You can restore from the backup if needed.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = IcyCyan,
+                    fontWeight = FontWeight.Medium
+                )
             }
         )
     }
@@ -311,7 +320,7 @@ fun SettingsScreen(
                                 Icon(
                                     Icons.Default.Description,
                                     contentDescription = null,
-                                    tint = Color(0xFF007AFF)
+                                    tint = ElectricBlue
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column(modifier = Modifier.weight(1f)) {
@@ -329,7 +338,7 @@ fun SettingsScreen(
                                 Icon(
                                     Icons.Default.Download,
                                     contentDescription = null,
-                                    tint = Color(0xFF007AFF)
+                                    tint = ElectricBlue
                                 )
                             }
                         }
@@ -386,7 +395,7 @@ private fun SettingsItem(
         Icon(
             icon,
             contentDescription = null,
-            tint = if (isDestructive) Color(0xFFFF3B30) else Color(0xFF007AFF),
+            tint = if (isDestructive) Color(0xFFFF3B30) else ElectricBlue,
             modifier = Modifier.size(24.dp)
         )
         

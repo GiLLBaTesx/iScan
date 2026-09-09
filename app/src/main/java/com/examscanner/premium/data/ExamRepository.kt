@@ -1,9 +1,11 @@
 package com.examscanner.premium.data
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 
 data class ExamWithStats(
     val exam: ExamEntity,
@@ -222,8 +224,25 @@ class ExamRepository(private val dao: ExamDao) {
         dao.deleteExam(exam)
     }
     
-    // Clear all data
-    suspend fun clearAllData() {
+    // Clear all data with automatic safety backup
+    suspend fun clearAllData(context: android.content.Context): String {
+        android.util.Log.i("ExamRepository", "clearAllData called - starting backup process...")
+        
+        // SAFETY: Create automatic backup before clearing
+        val backupResult = com.examscanner.premium.utils.BackupManager.createBackup(context)
+        
+        var backupMessage = ""
+        if (backupResult.isSuccess) {
+            val backupFile = backupResult.getOrNull()
+            backupMessage = "Backup created: ${backupFile?.name ?: "backup.db"}"
+            android.util.Log.i("ExamRepository", "✅ SUCCESS: $backupMessage")
+        } else {
+            val error = backupResult.exceptionOrNull()
+            android.util.Log.e("ExamRepository", "❌ BACKUP FAILED: ${error?.message}", error)
+            backupMessage = "⚠️ Backup failed: ${error?.message ?: "Unknown error"}"
+            // Still return the message so user knows backup failed
+        }
+        
         // Delete all student data
         val allExams = dao.getAllExams().first()
         allExams.forEach { exam ->
@@ -243,6 +262,8 @@ class ExamRepository(private val dao: ExamDao) {
         allFolders.forEach { folder ->
             dao.softDeleteSubjectFolder(folder.id)
         }
+        
+        return backupMessage
     }
     
     // Student Roster Management
@@ -437,6 +458,34 @@ class ExamRepository(private val dao: ExamDao) {
     suspend fun getAllStudentAnswersForExam(examId: Long): List<StudentAnswerEntity> {
         val students = dao.getStudents(examId).first()
         return students.flatMap { student -> dao.getStudentAnswers(student.id) }
+    }
+    
+    // Recycle Bin operations
+    fun getDeletedExams(): Flow<List<ExamEntity>> {
+        // Get exams deleted in last 30 days
+        val cutoffTime = System.currentTimeMillis() - (30 * 24 * 60 * 60 * 1000L)
+        return dao.getDeletedExams(cutoffTime)
+    }
+    
+    suspend fun restoreExam(examId: Long) {
+        dao.restoreExam(examId)
+    }
+    
+    suspend fun permanentlyDeleteExam(exam: ExamEntity) {
+        // Delete all related data
+        dao.deleteStudentAnswers(exam.id)
+        dao.deleteStudents(exam.id)
+        dao.deleteAnswerKeys(exam.id)
+        dao.deleteQuestionMelcMappings(exam.id)
+        dao.deleteExam(exam)
+    }
+    
+    suspend fun emptyRecycleBin() {
+        val cutoffTime = System.currentTimeMillis() - (30 * 24 * 60 * 60 * 1000L)
+        val deletedExams = dao.getDeletedExams(cutoffTime).first()
+        for (exam in deletedExams) {
+            permanentlyDeleteExam(exam)
+        }
     }
 }
 

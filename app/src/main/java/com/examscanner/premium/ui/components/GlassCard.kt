@@ -14,8 +14,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.examscanner.premium.ui.theme.GlassBorder
-import com.examscanner.premium.ui.theme.GlassOverlay
+import com.examscanner.premium.ui.theme.*
 
 @Composable
 fun GlassCard(
@@ -90,8 +89,8 @@ fun GlassmorphicCard(
             .shadow(
                 elevation = 12.dp,
                 shape = RoundedCornerShape(cornerRadius),
-                ambientColor = Color(0xFF007AFF).copy(alpha = 0.1f),
-                spotColor = Color(0xFF007AFF).copy(alpha = 0.15f)
+                ambientColor = ElectricBlue.copy(alpha = 0.1f),
+                spotColor = ElectricBlue.copy(alpha = 0.15f)
             )
             .clip(RoundedCornerShape(cornerRadius))
             .background(
@@ -139,15 +138,15 @@ fun PrimaryActionCard(
             .shadow(
                 elevation = if (enabled) 16.dp else 4.dp,
                 shape = RoundedCornerShape(28.dp),
-                ambientColor = Color(0xFF007AFF).copy(alpha = 0.2f),
-                spotColor = Color(0xFF007AFF).copy(alpha = 0.3f)
+                ambientColor = ElectricBlue.copy(alpha = 0.2f),
+                spotColor = ElectricBlue.copy(alpha = 0.3f)
             )
             .clip(RoundedCornerShape(28.dp))
             .background(
                 Brush.horizontalGradient(
                     colors = listOf(
-                        Color(0xFF007AFF).copy(alpha = alpha),
-                        Color(0xFF0051D5).copy(alpha = alpha)
+                        ElectricBlue.copy(alpha = alpha),
+                        SapphireDeep.copy(alpha = alpha)
                     )
                 )
             )
@@ -159,7 +158,7 @@ fun PrimaryActionCard(
 @Composable
 fun StatCard(
     modifier: Modifier = Modifier,
-    accentColor: Color = Color(0xFF007AFF),
+    accentColor: Color = ElectricBlue,
     content: @Composable () -> Unit
 ) {
     Box(

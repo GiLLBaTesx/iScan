@@ -1,31 +1,57 @@
 package com.examscanner.premium.ui.screens.auth
 
 import androidx.compose.foundation.background
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.foundation.layout.*
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.foundation.rememberScrollState
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.foundation.text.KeyboardActions
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.foundation.text.KeyboardOptions
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.foundation.verticalScroll
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.material.icons.Icons
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.material.icons.filled.ArrowBack
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.material.icons.filled.Visibility
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.material.icons.filled.VisibilityOff
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.material3.*
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.runtime.*
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.Alignment
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.Modifier
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.focus.FocusDirection
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.graphics.Brush
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.graphics.Color
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.platform.LocalFocusManager
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.text.font.FontWeight
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.text.input.ImeAction
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.text.input.KeyboardType
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.text.input.VisualTransformation
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.text.style.TextAlign
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.unit.dp
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.unit.sp
+import com.examscanner.premium.ui.theme.*
 import com.examscanner.premium.ui.components.GlassmorphicCard
 import com.examscanner.premium.ui.components.PrimaryActionCard
 
@@ -201,7 +227,7 @@ fun SignInScreen(
                             TextButton(onClick = onForgotPasswordClick) {
                                 Text(
                                     text = "Forgot Password?",
-                                    color = Color(0xFF007AFF),
+                                    color = ElectricBlue,
                                     fontSize = 14.sp
                                 )
                             }
@@ -258,7 +284,7 @@ fun SignInScreen(
                 TextButton(onClick = onSignUpClick) {
                     Text(
                         text = "Don't have an account? Sign Up",
-                        color = Color(0xFF007AFF),
+                        color = ElectricBlue,
                         fontSize = 15.sp
                     )
                 }

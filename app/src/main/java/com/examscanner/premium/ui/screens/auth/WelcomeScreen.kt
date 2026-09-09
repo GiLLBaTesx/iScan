@@ -1,19 +1,33 @@
 package com.examscanner.premium.ui.screens.auth
 
 import androidx.compose.foundation.Image
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.foundation.background
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.foundation.layout.*
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.material3.*
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.runtime.Composable
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.Alignment
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.Modifier
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.graphics.Brush
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.graphics.Color
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.res.painterResource
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.text.font.FontWeight
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.text.style.TextAlign
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.unit.dp
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.unit.sp
+import com.examscanner.premium.ui.theme.*
 import com.examscanner.premium.ui.components.PrimaryActionCard
 
 @Composable
@@ -56,8 +70,8 @@ fun WelcomeScreen(
                         .background(
                             Brush.linearGradient(
                                 colors = listOf(
-                                    Color(0xFF007AFF),
-                                    Color(0xFF0051D5)
+                                    ElectricBlue,
+                                    SapphireDeep
                                 )
                             ),
                             shape = MaterialTheme.shapes.extraLarge
@@ -133,7 +147,7 @@ fun WelcomeScreen(
                     onClick = onSignInClick,
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color(0xFF007AFF)
+                        contentColor = ElectricBlue
                     ),
                     contentPadding = PaddingValues(vertical = 16.dp)
                 ) {

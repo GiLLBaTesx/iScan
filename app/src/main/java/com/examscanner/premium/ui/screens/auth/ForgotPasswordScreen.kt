@@ -1,25 +1,45 @@
 package com.examscanner.premium.ui.screens.auth
 
 import androidx.compose.foundation.background
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.foundation.layout.*
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.foundation.text.KeyboardActions
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.foundation.text.KeyboardOptions
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.material.icons.Icons
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.material.icons.filled.ArrowBack
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.material.icons.filled.CheckCircle
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.material3.*
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.runtime.*
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.Alignment
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.Modifier
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.graphics.Brush
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.graphics.Color
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.platform.LocalFocusManager
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.text.font.FontWeight
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.text.input.ImeAction
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.text.input.KeyboardType
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.text.style.TextAlign
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.unit.dp
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.unit.sp
+import com.examscanner.premium.ui.theme.*
 import com.examscanner.premium.ui.components.GlassmorphicCard
 import com.examscanner.premium.ui.components.PrimaryActionCard
 
@@ -128,7 +148,7 @@ fun ForgotPasswordScreen(
                         text = email,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF007AFF),
+                        color = ElectricBlue,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(top = 4.dp)
                     )

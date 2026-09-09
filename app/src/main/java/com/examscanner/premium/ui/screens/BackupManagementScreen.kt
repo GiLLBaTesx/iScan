@@ -1,6 +1,7 @@
 package com.examscanner.premium.ui.screens
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -19,7 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.examscanner.premium.ui.components.FrostedGlassCard
+import com.examscanner.premium.ui.components.*
 import com.examscanner.premium.ui.theme.*
 import com.examscanner.premium.utils.BackupManager
 import kotlinx.coroutines.launch
@@ -43,12 +44,16 @@ fun BackupManagementScreen(
     var showRestoreDialog by remember { mutableStateOf<BackupManager.BackupInfo?>(null) }
     var showDeleteDialog by remember { mutableStateOf<BackupManager.BackupInfo?>(null) }
     var backupToExport by remember { mutableStateOf<BackupManager.BackupInfo?>(null) }
+    var showDeleteAllDialog by remember { mutableStateOf(false) }
+    var showCleanupDialog by remember { mutableStateOf(false) }
+    var totalBackupSize by remember { mutableStateOf(0L) }
     
     // Load backups function
     val loadBackups: () -> Unit = {
         scope.launch {
             backups = BackupManager.getAvailableBackups(context)
             lastBackupTime = BackupManager.getLastBackupTimestamp(context)
+            totalBackupSize = BackupManager.getTotalBackupSize(context)
         }
     }
     
@@ -63,7 +68,7 @@ fun BackupManagementScreen(
                 isRestoring = false
                 
                 if (result.isSuccess) {
-                    successMessage = "Database restored successfully! Please restart the app."
+                    successMessage = "✓ Database restored! Restarting in 5 seconds..."
                     onBackupRestored()
                     loadBackups()
                 } else {
@@ -162,27 +167,44 @@ fun BackupManagementScreen(
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
+            FloatingActionButton(
                 onClick = {
+                    Log.d("BackupScreen", "FAB clicked!")
                     scope.launch {
-                        isCreatingBackup = true
-                        val result = BackupManager.createBackup(context)
-                        isCreatingBackup = false
-                        
-                        if (result.isSuccess) {
-                            successMessage = "Backup created successfully!"
-                            onBackupCreated()
-                            loadBackups()
-                        } else {
-                            errorMessage = "Backup failed: ${result.exceptionOrNull()?.message}"
+                        try {
+                            isCreatingBackup = true
+                            errorMessage = null
+                            successMessage = null
+                            
+                            Log.d("BackupScreen", "Starting backup creation...")
+                            val result = BackupManager.createBackup(context)
+                            isCreatingBackup = false
+                            
+                            Log.d("BackupScreen", "Backup result: ${result.isSuccess}")
+                            
+                            if (result.isSuccess) {
+                                successMessage = "✓ Backup created successfully!"
+                                Log.d("BackupScreen", "Calling loadBackups...")
+                                loadBackups()
+                                Log.d("BackupScreen", "Calling onBackupCreated...")
+                                onBackupCreated()
+                                Log.d("BackupScreen", "Backup creation complete")
+                            } else {
+                                errorMessage = "Backup failed: ${result.exceptionOrNull()?.message}"
+                                Log.e("BackupScreen", "Backup failed", result.exceptionOrNull())
+                            }
+                        } catch (e: Exception) {
+                            isCreatingBackup = false
+                            errorMessage = "Backup failed: ${e.message}"
+                            Log.e("BackupScreen", "Backup creation crashed", e)
                         }
                     }
                 },
-                icon = { Icon(Icons.Default.Backup, contentDescription = null) },
-                text = { Text("Create Backup") },
                 containerColor = ElectricBlue,
                 contentColor = Color.White
-            )
+            ) {
+                Icon(Icons.Default.Backup, contentDescription = "Create Backup")
+            }
         }
     ) { padding ->
         Box(
@@ -204,7 +226,8 @@ fun BackupManagementScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(20.dp)
+                                .padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -230,6 +253,31 @@ fun BackupManagementScreen(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
+                            }
+                            
+                            // Tip for users
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(
+                                        IcyCyan.copy(alpha = 0.1f),
+                                        RoundedCornerShape(8.dp)
+                                    )
+                                    .padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.TipsAndUpdates,
+                                    contentDescription = null,
+                                    tint = IcyCyan,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Text(
+                                    text = "Tip: Use 'Share Latest Backup' to save backups to Google Drive or other cloud storage",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
                         }
                     }
@@ -271,6 +319,123 @@ fun BackupManagementScreen(
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+                            }
+                        }
+                        
+                        // Share latest backup
+                        if (backups.isNotEmpty()) {
+                            FrostedGlassCard(
+                                onClick = { 
+                                    backupToExport = backups.first()
+                                    exportFilePicker.launch(backups.first().file.name)
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.Share,
+                                        contentDescription = null,
+                                        tint = ElectricBlue
+                                    )
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = "Share Latest Backup",
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                        Text(
+                                            text = "Export backup to save or share",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                    Icon(
+                                        Icons.Default.ChevronRight,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                        
+                        // Backup Management Actions (if backups exist)
+                        if (backups.isNotEmpty()) {
+                            FrostedGlassCard(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column {
+                                    // Cleanup old backups
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable { showCleanupDialog = true }
+                                            .padding(16.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+                                        Icon(
+                                            Icons.Default.AutoDelete,
+                                            contentDescription = null,
+                                            tint = WarningAmber
+                                        )
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                text = "Cleanup Old Backups",
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                            Text(
+                                                text = "Remove backups older than 30 days",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                        Icon(
+                                            Icons.Default.ChevronRight,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                    
+                                    Divider(color = Color(0xFFE5E5EA), thickness = 0.5.dp)
+                                    
+                                    // Delete all backups
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable { showDeleteAllDialog = true }
+                                            .padding(16.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+                                        Icon(
+                                            Icons.Default.DeleteForever,
+                                            contentDescription = null,
+                                            tint = ErrorCoral
+                                        )
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                text = "Clear All Backups",
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = ErrorCoral
+                                            )
+                                            Text(
+                                                text = "Delete all backups (${BackupManager.formatFileSize(totalBackupSize)})",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                        Icon(
+                                            Icons.Default.ChevronRight,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -371,11 +536,108 @@ fun BackupManagementScreen(
     
     // Restore confirmation dialog
     showRestoreDialog?.let { backup ->
-        AlertDialog(
+        UnifiedDialog(
             onDismissRequest = { showRestoreDialog = null },
+            title = "Restore Backup?",
+            icon = Icons.Default.Restore,
+            confirmText = "RESTORE",
+            dismissText = "CANCEL",
+            onConfirm = {
+                scope.launch {
+                    isRestoring = true
+                    val result = BackupManager.restoreBackup(
+                        context,
+                        Uri.fromFile(backup.file)
+                    )
+                    isRestoring = false
+                    showRestoreDialog = null
+                    
+                    if (result.isSuccess) {
+                        successMessage = "✓ Restore complete! Restarting in 5 seconds..."
+                        onBackupRestored()
+                    } else {
+                        errorMessage = "Restore failed: ${result.exceptionOrNull()?.message}"
+                    }
+                }
+            },
+            onDismiss = { showRestoreDialog = null },
+            content = {
+                Text("This will replace all current data with:")
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Text("• Backup: ${backup.file.name}", fontWeight = FontWeight.Medium, color = TextPrimaryIce)
+                Text("• Date: ${BackupManager.formatBackupDate(backup.timestamp)}", color = TextSecondaryIce)
+                Text("• Size: ${BackupManager.formatFileSize(backup.size)}", color = TextSecondaryIce)
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Text(
+                    "⚠️ Current data will be backed up first.",
+                    color = WarningAmber
+                )
+                Text(
+                    "📱 App will restart automatically to load the restored data.",
+                    color = TextSecondaryIce
+                )
+            }
+        )
+    }
+    
+    // Delete confirmation dialog
+    showDeleteDialog?.let { backup ->
+        UnifiedConfirmDialog(
+            onDismissRequest = { showDeleteDialog = null },
+            title = "Delete Backup?",
+            message = "Are you sure you want to delete this backup? This action cannot be undone.",
+            icon = Icons.Default.Delete,
+            confirmText = "DELETE",
+            isDangerous = true,
+            onConfirm = {
+                if (BackupManager.deleteBackup(backup)) {
+                    successMessage = "Backup deleted"
+                    loadBackups()
+                } else {
+                    errorMessage = "Failed to delete backup"
+                }
+                showDeleteDialog = null
+            },
+            onDismiss = { showDeleteDialog = null }
+        )
+    }
+    
+    // Delete all backups confirmation dialog
+    if (showDeleteAllDialog) {
+        UnifiedConfirmDialog(
+            onDismissRequest = { showDeleteAllDialog = false },
+            title = "Delete All Backups?",
+            message = "Are you sure you want to delete ALL ${backups.size} backups? This action cannot be undone and you will not be able to restore your data.",
+            icon = Icons.Default.DeleteForever,
+            confirmText = "DELETE ALL",
+            isDangerous = true,
+            onConfirm = {
+                scope.launch {
+                    val result = BackupManager.deleteAllBackups(context)
+                    if (result.isSuccess) {
+                        successMessage = "All backups deleted"
+                        loadBackups()
+                    } else {
+                        errorMessage = "Failed to delete all backups"
+                    }
+                }
+                showDeleteAllDialog = false
+            },
+            onDismiss = { showDeleteAllDialog = false }
+        )
+    }
+    
+    // Cleanup old backups dialog
+    if (showCleanupDialog) {
+        AlertDialog(
+            onDismissRequest = { showCleanupDialog = false },
             icon = {
                 Icon(
-                    Icons.Default.Warning,
+                    Icons.Default.AutoDelete,
                     contentDescription = null,
                     tint = WarningAmber,
                     modifier = Modifier.size(48.dp)
@@ -383,89 +645,49 @@ fun BackupManagementScreen(
             },
             title = {
                 Text(
-                    text = "Restore Backup?",
+                    text = "Cleanup Old Backups?",
                     fontWeight = FontWeight.Bold
                 )
             },
             text = {
                 Column {
-                    Text("This will replace all current data with:")
+                    Text("This will delete backups older than 30 days.")
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("• Backup: ${backup.file.name}")
-                    Text("• Date: ${BackupManager.formatBackupDate(backup.timestamp)}")
-                    Text("• Size: ${BackupManager.formatFileSize(backup.size)}")
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("⚠️ Current data will be backed up first. App will restart automatically after restore.")
-
+                    Text("• Keeps at least 3 most recent backups")
+                    Text("• Safe and automatic cleanup")
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "💡 Tip: Export important backups to cloud storage before cleaning up.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             },
             confirmButton = {
                 TextButton(
                     onClick = {
                         scope.launch {
-                            isRestoring = true
-                            val result = BackupManager.restoreBackup(
-                                context,
-                                Uri.fromFile(backup.file)
-                            )
-                            isRestoring = false
-                            showRestoreDialog = null
-                            
+                            val result = BackupManager.cleanupOldBackups(context, olderThanDays = 30, minToKeep = 3)
                             if (result.isSuccess) {
-                                successMessage = "✓ Restore complete! Restarting app..."
-                                onBackupRestored()
+                                val count = result.getOrNull() ?: 0
+                                if (count > 0) {
+                                    successMessage = "✓ Cleaned up $count old backup${if (count > 1) "s" else ""}"
+                                } else {
+                                    successMessage = "✓ No old backups to clean up"
+                                }
+                                loadBackups()
                             } else {
-                                errorMessage = "Restore failed: ${result.exceptionOrNull()?.message}"
+                                errorMessage = "Cleanup failed: ${result.exceptionOrNull()?.message}"
                             }
                         }
+                        showCleanupDialog = false
                     }
                 ) {
-                    Text("RESTORE", color = ElectricBlue, fontWeight = FontWeight.Bold)
+                    Text("CLEANUP", color = WarningAmber, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showRestoreDialog = null }) {
-                    Text("CANCEL")
-                }
-            }
-        )
-    }
-    
-    // Delete confirmation dialog
-    showDeleteDialog?.let { backup ->
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = null },
-            icon = {
-                Icon(
-                    Icons.Default.Delete,
-                    contentDescription = null,
-                    tint = ErrorCoral,
-                    modifier = Modifier.size(48.dp)
-                )
-            },
-            title = {
-                Text("Delete Backup?", fontWeight = FontWeight.Bold)
-            },
-            text = {
-                Text("Are you sure you want to delete this backup? This action cannot be undone.")
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (BackupManager.deleteBackup(backup)) {
-                            successMessage = "Backup deleted"
-                            loadBackups()
-                        } else {
-                            errorMessage = "Failed to delete backup"
-                        }
-                        showDeleteDialog = null
-                    }
-                ) {
-                    Text("DELETE", color = ErrorCoral, fontWeight = FontWeight.Bold)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = null }) {
+                TextButton(onClick = { showCleanupDialog = false }) {
                     Text("CANCEL")
                 }
             }
@@ -480,8 +702,6 @@ private fun BackupItemCard(
     onDelete: () -> Unit,
     onExport: () -> Unit
 ) {
-    var showMenu by remember { mutableStateOf(false) }
-    
     FrostedGlassCard(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -497,7 +717,8 @@ private fun BackupItemCard(
             ) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
                 ) {
                     Icon(
                         if (backup.isValid) Icons.Default.CheckCircle else Icons.Default.Error,
@@ -508,7 +729,7 @@ private fun BackupItemCard(
                         Text(
                             text = backup.file.name,
                             fontWeight = FontWeight.SemiBold,
-                            style = MaterialTheme.typography.bodyLarge
+                            style = MaterialTheme.typography.bodyMedium
                         )
                         Text(
                             text = BackupManager.formatBackupDate(backup.timestamp),
@@ -518,48 +739,46 @@ private fun BackupItemCard(
                     }
                 }
                 
-                Box {
-                    IconButton(onClick = { showMenu = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "Options")
+                // Action buttons row
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    // Restore button
+                    IconButton(
+                        onClick = onRestore,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Restore,
+                            contentDescription = "Restore",
+                            tint = IcyCyan,
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
                     
-                    DropdownMenu(
-                        expanded = showMenu,
-                        onDismissRequest = { showMenu = false }
+                    // Export button
+                    IconButton(
+                        onClick = onExport,
+                        modifier = Modifier.size(40.dp)
                     ) {
-                        DropdownMenuItem(
-                            text = { Text("Restore") },
-                            onClick = {
-                                showMenu = false
-                                onRestore()
-                            },
-                            leadingIcon = {
-                                Icon(Icons.Default.Restore, contentDescription = null)
-                            }
+                        Icon(
+                            Icons.Default.Share,
+                            contentDescription = "Export",
+                            tint = ElectricBlue,
+                            modifier = Modifier.size(20.dp)
                         )
-                        DropdownMenuItem(
-                            text = { Text("Export") },
-                            onClick = {
-                                showMenu = false
-                                onExport()
-                            },
-                            leadingIcon = {
-                                Icon(Icons.Default.Share, contentDescription = null, tint = ElectricBlue)
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Delete") },
-                            onClick = {
-                                showMenu = false
-                                onDelete()
-                            },
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Default.Delete,
-                                    contentDescription = null,
-                                    tint = ErrorCoral
-                                )
-                            }
+                    }
+                    
+                    // Delete button
+                    IconButton(
+                        onClick = onDelete,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            tint = ErrorCoral,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }

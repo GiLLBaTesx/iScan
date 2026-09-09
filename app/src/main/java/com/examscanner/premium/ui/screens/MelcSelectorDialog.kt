@@ -107,11 +107,11 @@ fun MelcSelectorDialog(
                     }
                 }
                 
-                // Content area with light background
+                // Content area with ice-white background
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color(0xFFF5F5F5))
+                        .background(IceWhite)
                         .padding(16.dp)
                 ) {
                     // Search Bar

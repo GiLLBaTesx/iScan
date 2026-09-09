@@ -9,9 +9,12 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.examscanner.premium.data.AppDatabase
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
@@ -38,20 +41,70 @@ object BackupManager {
     
     /**
      * Create a backup of the database
+     * IMPORTANT: This should be called from a background thread/coroutine
      */
     suspend fun createBackup(context: Context): Result<File> {
         return withContext(Dispatchers.IO) {
             try {
+                Log.i(TAG, "Starting backup creation...")
+                
+                // CRITICAL: Checkpoint database before backup
+                try {
+                    Log.i(TAG, "Attempting to checkpoint database via Room...")
+                    val database = AppDatabase.getDatabase(context)
+                    // Force Room to checkpoint the WAL file using SupportSQLiteDatabase API
+                    val supportDb = database.openHelper.writableDatabase
+                    supportDb.query("PRAGMA wal_checkpoint(FULL)").use { cursor ->
+                        cursor.moveToFirst()
+                    }
+                    // Give it a moment to complete
+                    kotlinx.coroutines.delay(200)
+                    Log.i(TAG, "Database checkpoint via Room completed")
+                } catch (e: Exception) {
+                    Log.w(TAG, "Could not checkpoint via Room, trying direct approach", e)
+                    // Fallback: try direct checkpoint
+                    try {
+                        val dbFile = context.getDatabasePath(DB_NAME)
+                        val db = android.database.sqlite.SQLiteDatabase.openDatabase(
+                            dbFile.absolutePath,
+                            null,
+                            android.database.sqlite.SQLiteDatabase.OPEN_READONLY
+                        )
+                        db.rawQuery("PRAGMA wal_checkpoint(FULL)", null).use { it.moveToFirst() }
+                        db.close()
+                    } catch (e2: Exception) {
+                        Log.w(TAG, "Direct checkpoint also failed, continuing anyway", e2)
+                    }
+                }
+                
                 // Get database file
                 val dbFile = context.getDatabasePath(DB_NAME)
+                Log.i(TAG, "Database path: ${dbFile.absolutePath}")
+                
                 if (!dbFile.exists()) {
+                    Log.e(TAG, "Database file not found at: ${dbFile.absolutePath}")
                     return@withContext Result.failure(Exception("Database file not found"))
                 }
                 
+                Log.i(TAG, "Database file size: ${dbFile.length()} bytes")
+                
                 // Create backup directory
-                val backupDir = File(context.getExternalFilesDir(null), "backups")
+                val externalFilesDir = context.getExternalFilesDir(null)
+                if (externalFilesDir == null) {
+                    Log.e(TAG, "External files directory is null - storage not available")
+                    return@withContext Result.failure(Exception("Storage not available. Please check if external storage is mounted."))
+                }
+                
+                val backupDir = File(externalFilesDir, "backups")
+                Log.i(TAG, "Backup directory: ${backupDir.absolutePath}")
+                
                 if (!backupDir.exists()) {
-                    backupDir.mkdirs()
+                    val created = backupDir.mkdirs()
+                    if (!created) {
+                        Log.e(TAG, "Failed to create backup directory")
+                        return@withContext Result.failure(Exception("Could not create backup directory"))
+                    }
+                    Log.i(TAG, "Backup directory created successfully")
                 }
                 
                 // Generate backup filename with timestamp
@@ -59,14 +112,18 @@ object BackupManager {
                 val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
                 val backupFileName = "backup_${dateFormat.format(Date(timestamp))}.db"
                 val backupFile = File(backupDir, backupFileName)
+                Log.i(TAG, "Creating backup file: ${backupFile.absolutePath}")
                 
                 // Copy database file to backup (including WAL files if they exist)
                 try {
+                    Log.i(TAG, "Starting file copy...")
+                    
                     // Copy main database file
                     dbFile.inputStream().use { input ->
                         backupFile.outputStream().use { output ->
-                            input.copyTo(output)
+                            val bytesCopied = input.copyTo(output)
                             output.flush()
+                            Log.i(TAG, "Copied $bytesCopied bytes to backup file")
                         }
                     }
                     
@@ -77,40 +134,43 @@ object BackupManager {
                     if (walFile.exists()) {
                         val backupWal = File(backupFile.parentFile, "${backupFile.name}-wal")
                         walFile.copyTo(backupWal, overwrite = true)
+                        Log.i(TAG, "Copied WAL file")
                     }
                     if (shmFile.exists()) {
                         val backupShm = File(backupFile.parentFile, "${backupFile.name}-shm")
                         shmFile.copyTo(backupShm, overwrite = true)
+                        Log.i(TAG, "Copied SHM file")
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to copy database file", e)
+                    // Clean up partial backup
+                    backupFile.delete()
                     return@withContext Result.failure(Exception("Failed to copy database: ${e.message}"))
                 }
                 
+                Log.i(TAG, "Verifying backup...")
+                
                 // Verify backup
                 if (!verifyBackup(backupFile)) {
+                    Log.e(TAG, "Backup verification failed")
                     backupFile.delete()
-                    return@withContext Result.failure(Exception("Backup verification failed"))
+                    return@withContext Result.failure(Exception("Backup verification failed - file may be corrupted"))
                 }
                 
-                // Update last backup timestamp
-                try {
-                    context.backupDataStore.edit { prefs ->
-                        prefs[LAST_BACKUP_KEY] = timestamp
-                    }
-                } catch (e: Exception) {
-                    Log.w(TAG, "Could not update backup timestamp", e)
-                }
+                Log.i(TAG, "Backup verified successfully")
+                
+                // Note: Not updating timestamp to DataStore to avoid potential database issues
+                // The backup file timestamp itself serves as the last backup indicator
                 
                 // Clean up old backups
                 cleanupOldBackups(backupDir)
                 
                 Log.i(TAG, "Backup created successfully: ${backupFile.absolutePath}")
-                Result.success(backupFile)
+                return@withContext Result.success(backupFile)
                 
             } catch (e: Exception) {
                 Log.e(TAG, "Backup failed", e)
-                Result.failure(e)
+                return@withContext Result.failure(e)
             }
         }
     }
@@ -276,12 +336,18 @@ object BackupManager {
     }
     
     /**
-     * Get last backup timestamp
+     * Get last backup timestamp from the most recent backup file
      */
     suspend fun getLastBackupTimestamp(context: Context): Long? {
-        return context.backupDataStore.data.map { prefs ->
-            prefs[LAST_BACKUP_KEY]
-        }.first()
+        return withContext(Dispatchers.IO) {
+            try {
+                val backups = getAvailableBackups(context)
+                backups.firstOrNull()?.timestamp
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to get last backup timestamp", e)
+                null
+            }
+        }
     }
     
     /**
@@ -343,6 +409,75 @@ object BackupManager {
     }
     
     /**
-     * Restart the app after restore
+     * Delete all backups
      */
+    fun deleteAllBackups(context: Context): Result<Int> {
+        return try {
+            val backupDir = File(context.getExternalFilesDir(null), "backups")
+            if (!backupDir.exists() || !backupDir.isDirectory) {
+                return Result.success(0)
+            }
+            
+            var deletedCount = 0
+            backupDir.listFiles()?.forEach { file ->
+                if (file.delete()) {
+                    deletedCount++
+                    Log.i(TAG, "Deleted backup: ${file.name}")
+                }
+            }
+            
+            Result.success(deletedCount)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to delete all backups", e)
+            Result.failure(e)
+        }
+    }
+    
+    /**
+     * Get total size of all backups
+     */
+    fun getTotalBackupSize(context: Context): Long {
+        val backupDir = File(context.getExternalFilesDir(null), "backups")
+        if (!backupDir.exists() || !backupDir.isDirectory) {
+            return 0L
+        }
+        
+        return backupDir.listFiles()?.sumOf { it.length() } ?: 0L
+    }
+    
+    /**
+     * Cleanup backups older than specified days, keeping at least minToKeep backups
+     */
+    fun cleanupOldBackups(context: Context, olderThanDays: Int, minToKeep: Int = 3): Result<Int> {
+        return try {
+            val backupDir = File(context.getExternalFilesDir(null), "backups")
+            if (!backupDir.exists() || !backupDir.isDirectory) {
+                return Result.success(0)
+            }
+            
+            val backups = backupDir.listFiles { file ->
+                file.isFile && file.extension == "db" && file.name.startsWith("backup_")
+            }?.sortedByDescending { it.lastModified() } ?: return Result.success(0)
+            
+            // Keep at least minToKeep backups regardless of age
+            val backupsToConsider = backups.drop(minToKeep)
+            
+            val cutoffTime = System.currentTimeMillis() - (olderThanDays * 24 * 60 * 60 * 1000L)
+            var deletedCount = 0
+            
+            backupsToConsider.forEach { file ->
+                if (file.lastModified() < cutoffTime) {
+                    if (file.delete()) {
+                        deletedCount++
+                        Log.i(TAG, "Cleaned up old backup: ${file.name}")
+                    }
+                }
+            }
+            
+            Result.success(deletedCount)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to cleanup old backups", e)
+            Result.failure(e)
+        }
+    }
 }

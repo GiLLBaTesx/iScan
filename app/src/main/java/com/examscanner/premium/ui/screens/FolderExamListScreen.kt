@@ -1,22 +1,39 @@
 package com.examscanner.premium.ui.screens
 
 import androidx.compose.foundation.background
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.foundation.clickable
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.foundation.layout.*
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.foundation.lazy.LazyColumn
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.foundation.lazy.items
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.material.icons.Icons
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.material.icons.filled.*
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.material3.*
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.runtime.*
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.Alignment
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.Modifier
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.draw.clip
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.graphics.Brush
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.graphics.Color
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.text.font.FontWeight
+import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.unit.dp
+import com.examscanner.premium.ui.theme.*
 import com.examscanner.premium.data.ExamWithStats
 import com.examscanner.premium.ui.components.FloatingGlassCard
 import com.examscanner.premium.ui.components.GlassCard
@@ -62,7 +79,7 @@ fun FolderExamListScreen(
                     Icon(
                         Icons.Default.ArrowBack,
                         contentDescription = "Back",
-                        tint = Color(0xFF007AFF)
+                        tint = ElectricBlue
                     )
                 }
                 
@@ -136,7 +153,7 @@ fun FolderExamListScreen(
                     Icon(
                         Icons.Default.Add,
                         contentDescription = null,
-                        tint = Color(0xFF007AFF),
+                        tint = ElectricBlue,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
@@ -144,7 +161,7 @@ fun FolderExamListScreen(
                         text = "NEW EXAM",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF007AFF)
+                        color = ElectricBlue
                     )
                 }
             }
@@ -269,7 +286,7 @@ private fun FolderStatItem(value: String, label: String, icon: androidx.compose.
         Icon(
             icon,
             contentDescription = null,
-            tint = Color(0xFF007AFF),
+            tint = ElectricBlue,
             modifier = Modifier.size(24.dp)
         )
         Spacer(modifier = Modifier.height(4.dp))
@@ -313,14 +330,14 @@ private fun ExamCard(
                 modifier = Modifier
                     .size(56.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFF007AFF).copy(alpha = 0.1f))
+                    .background(ElectricBlue.copy(alpha = 0.1f))
                     .clickable(onClick = onClick),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     Icons.Default.Description,
                     contentDescription = null,
-                    tint = Color(0xFF007AFF),
+                    tint = ElectricBlue,
                     modifier = Modifier.size(28.dp)
                 )
             }
@@ -376,7 +393,7 @@ private fun ExamCard(
                 Icon(
                     Icons.Default.Edit,
                     contentDescription = "Edit exam",
-                    tint = Color(0xFF007AFF)
+                    tint = ElectricBlue
                 )
             }
             
@@ -482,7 +499,7 @@ fun EditExamDialog(
                 onClick = { if (examName.isNotBlank() && examName != currentName) onSave(examName) },
                 enabled = examName.isNotBlank() && examName != currentName
             ) {
-                Text("SAVE", color = Color(0xFF007AFF))
+                Text("SAVE", color = ElectricBlue)
             }
         },
         dismissButton = {

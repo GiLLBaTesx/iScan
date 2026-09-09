@@ -2,6 +2,7 @@ package com.examscanner.premium.ui.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -39,8 +40,9 @@ fun SubjectFolderListScreen(
     var showDeleteDialog by remember { mutableStateOf<SubjectFolderEntity?>(null) }
     var showRenameDialog by remember { mutableStateOf<SubjectFolderEntity?>(null) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
-    var showOptionsMenu by remember { mutableStateOf(false) }
     var showTemplateDialog by remember { mutableStateOf(false) }
+    var showSortMenu by remember { mutableStateOf(false) }
+    var sortOrder by remember { mutableStateOf("newest") } // newest, oldest, name_asc, name_desc
     val context = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
     
@@ -49,6 +51,17 @@ fun SubjectFolderListScreen(
     LaunchedEffect(folders) {
         viewModel?.let { vm ->
             totalExams = vm.getTotalExamsCount()
+        }
+    }
+    
+    // Sort folders based on selected sort order
+    val sortedFolders = remember(folders, sortOrder) {
+        when (sortOrder) {
+            "newest" -> folders.sortedByDescending { it.createdAt }
+            "oldest" -> folders.sortedBy { it.createdAt }
+            "name_asc" -> folders.sortedBy { it.name.lowercase() }
+            "name_desc" -> folders.sortedByDescending { it.name.lowercase() }
+            else -> folders
         }
     }
     
@@ -86,54 +99,18 @@ fun SubjectFolderListScreen(
                         )
                     }
                     
-                    // Right side - Live badge + Options + Settings
+                    // Right side - Settings Button
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        StatusBadge("LIVE SYNC", IcyCyan, showDot = true)
-                        
-                        // Options Menu Button
-                        Box {
-                            IconButton(onClick = { showOptionsMenu = true }) {
-                                Icon(
-                                    Icons.Default.MoreVert,
-                                    contentDescription = "More options",
-                                    tint = MaterialTheme.colorScheme.onBackground
-                                )
-                            }
-                            
-                            DropdownMenu(
-                                expanded = showOptionsMenu,
-                                onDismissRequest = { showOptionsMenu = false }
-                            ) {
-                                if (folders.isNotEmpty()) {
-                                    DropdownMenuItem(
-                                        text = { Text("Delete All Folders", color = ErrorCoral) },
-                                        onClick = {
-                                            showOptionsMenu = false
-                                            showDeleteAllDialog = true
-                                        },
-                                        leadingIcon = {
-                                            Icon(
-                                                Icons.Default.Delete,
-                                                contentDescription = null,
-                                                tint = ErrorCoral
-                                            )
-                                        }
-                                    )
-                                }
-                                DropdownMenuItem(
-                                    text = { Text("Settings") },
-                                    onClick = {
-                                        showOptionsMenu = false
-                                        onSettingsClick()
-                                    },
-                                    leadingIcon = {
-                                        Icon(Icons.Default.Settings, contentDescription = null)
-                                    }
-                                )
-                            }
+                        // Settings Button
+                        IconButton(onClick = onSettingsClick) {
+                            Icon(
+                                Icons.Default.Settings,
+                                contentDescription = "Settings",
+                                tint = MaterialTheme.colorScheme.onBackground
+                            )
                         }
                     }
                 }
@@ -184,13 +161,150 @@ fun SubjectFolderListScreen(
                 }
             }
             
-            // Section Header
+            // Section Header with Sort
             item {
-                SectionHeader(
-                    title = if (folders.isEmpty()) "NO FOLDERS YET" else "YOUR SUBJECTS",
-                    actionText = if (folders.isNotEmpty()) "SORT ▼" else null,
-                    onActionClick = if (folders.isNotEmpty()) { {} } else null
-                )
+                Column {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = if (sortedFolders.isEmpty()) "NO FOLDERS YET" else "YOUR SUBJECTS",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            letterSpacing = 1.sp
+                        )
+                        
+                        if (sortedFolders.isNotEmpty()) {
+                            Box {
+                                Row(
+                                    modifier = Modifier
+                                        .clickable { showSortMenu = !showSortMenu }
+                                        .padding(4.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text(
+                                        text = "SORT",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = ElectricBlue,
+                                        letterSpacing = 0.8.sp
+                                    )
+                                    Icon(
+                                        if (showSortMenu) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                                        contentDescription = "Sort",
+                                        tint = ElectricBlue,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                
+                                DropdownMenu(
+                                    expanded = showSortMenu,
+                                    onDismissRequest = { showSortMenu = false },
+                                    modifier = Modifier.width(200.dp)
+                                ) {
+                                    DropdownMenuItem(
+                                        text = {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Text("Newest First")
+                                                if (sortOrder == "newest") {
+                                                    Icon(
+                                                        Icons.Default.Check,
+                                                        contentDescription = null,
+                                                        tint = ElectricBlue,
+                                                        modifier = Modifier.size(16.dp)
+                                                    )
+                                                }
+                                            }
+                                        },
+                                        onClick = {
+                                            sortOrder = "newest"
+                                            showSortMenu = false
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Text("Oldest First")
+                                                if (sortOrder == "oldest") {
+                                                    Icon(
+                                                        Icons.Default.Check,
+                                                        contentDescription = null,
+                                                        tint = ElectricBlue,
+                                                        modifier = Modifier.size(16.dp)
+                                                    )
+                                                }
+                                            }
+                                        },
+                                        onClick = {
+                                            sortOrder = "oldest"
+                                            showSortMenu = false
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Text("Name (A-Z)")
+                                                if (sortOrder == "name_asc") {
+                                                    Icon(
+                                                        Icons.Default.Check,
+                                                        contentDescription = null,
+                                                        tint = ElectricBlue,
+                                                        modifier = Modifier.size(16.dp)
+                                                    )
+                                                }
+                                            }
+                                        },
+                                        onClick = {
+                                            sortOrder = "name_asc"
+                                            showSortMenu = false
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Text("Name (Z-A)")
+                                                if (sortOrder == "name_desc") {
+                                                    Icon(
+                                                        Icons.Default.Check,
+                                                        contentDescription = null,
+                                                        tint = ElectricBlue,
+                                                        modifier = Modifier.size(16.dp)
+                                                    )
+                                                }
+                                            }
+                                        },
+                                        onClick = {
+                                            sortOrder = "name_desc"
+                                            showSortMenu = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
             
             // Empty State or Folder List
@@ -228,8 +342,8 @@ fun SubjectFolderListScreen(
                     }
                 }
             } else {
-                items(folders.size) { index ->
-                    val folder = folders[index]
+                items(sortedFolders.size) { index ->
+                    val folder = sortedFolders[index]
                     val exams by viewModel?.getFolderExams(folder.id)?.collectAsState(initial = emptyList()) 
                         ?: remember { mutableStateOf(emptyList()) }
                     
@@ -328,197 +442,103 @@ fun SubjectFolderListScreen(
     // New Folder Dialog
     if (showNewFolderDialog) {
         var folderName by remember { mutableStateOf("") }
-        AlertDialog(
+        UnifiedInputDialog(
             onDismissRequest = { showNewFolderDialog = false },
-            title = {
-                Text(
-                    "New Subject Folder",
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            },
-            text = {
-                OutlinedTextField(
-                    value = folderName,
-                    onValueChange = { folderName = it },
-                    label = { Text("Folder Name") },
-                    placeholder = { Text("e.g., Mathematics") },
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = ElectricBlue,
-                        focusedLabelColor = ElectricBlue
-                    )
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (folderName.isNotBlank()) {
-                            scope.launch {
-                                viewModel?.createSubjectFolder(folderName)
-                                android.widget.Toast.makeText(
-                                    context,
-                                    "Folder created!",
-                                    android.widget.Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            showNewFolderDialog = false
-                        }
-                    }
-                ) {
-                    Text("CREATE", color = ElectricBlue, fontWeight = FontWeight.Bold)
+            title = "New Subject Folder",
+            icon = Icons.Default.CreateNewFolder,
+            value = folderName,
+            onValueChange = { folderName = it },
+            label = "Folder Name",
+            placeholder = "e.g., Mathematics",
+            confirmText = "CREATE",
+            onConfirm = {
+                scope.launch {
+                    viewModel?.createSubjectFolder(folderName)
+                    android.widget.Toast.makeText(
+                        context,
+                        "Folder created!",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
                 }
+                showNewFolderDialog = false
             },
-            dismissButton = {
-                TextButton(onClick = { showNewFolderDialog = false }) {
-                    Text("CANCEL", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            },
-            containerColor = MaterialTheme.colorScheme.surface,
-            shape = RoundedCornerShape(20.dp)
+            onDismiss = { showNewFolderDialog = false }
         )
     }
     
     // Rename Dialog
     showRenameDialog?.let { folder ->
         var newName by remember { mutableStateOf(folder.name) }
-        AlertDialog(
+        UnifiedInputDialog(
             onDismissRequest = { showRenameDialog = null },
-            title = {
-                Text(
-                    "Rename Folder",
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            },
-            text = {
-                OutlinedTextField(
-                    value = newName,
-                    onValueChange = { newName = it },
-                    label = { Text("Folder Name") },
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = ElectricBlue,
-                        focusedLabelColor = ElectricBlue
-                    )
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (newName.isNotBlank()) {
-                            scope.launch {
-                                viewModel?.updateSubjectFolder(folder.id, newName)
-                                android.widget.Toast.makeText(
-                                    context,
-                                    "Folder renamed!",
-                                    android.widget.Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            showRenameDialog = null
-                        }
-                    }
-                ) {
-                    Text("RENAME", color = ElectricBlue, fontWeight = FontWeight.Bold)
+            title = "Rename Folder",
+            icon = Icons.Default.Edit,
+            value = newName,
+            onValueChange = { newName = it },
+            label = "Folder Name",
+            confirmText = "RENAME",
+            onConfirm = {
+                scope.launch {
+                    viewModel?.updateSubjectFolder(folder.id, newName)
+                    android.widget.Toast.makeText(
+                        context,
+                        "Folder renamed!",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
                 }
+                showRenameDialog = null
             },
-            dismissButton = {
-                TextButton(onClick = { showRenameDialog = null }) {
-                    Text("CANCEL", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            },
-            containerColor = MaterialTheme.colorScheme.surface,
-            shape = RoundedCornerShape(20.dp)
+            onDismiss = { showRenameDialog = null }
         )
     }
     
     // Delete Confirmation Dialog
     showDeleteDialog?.let { folder ->
-        AlertDialog(
+        UnifiedConfirmDialog(
             onDismissRequest = { showDeleteDialog = null },
-            title = {
-                Text(
-                    "Delete Folder?",
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            },
-            text = {
-                Text(
-                    "Are you sure you want to delete \"${folder.name}\"? This action cannot be undone.",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        scope.launch {
-                            viewModel?.deleteSubjectFolder(folder.id)
-                            android.widget.Toast.makeText(
-                                context,
-                                "Folder deleted",
-                                android.widget.Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        showDeleteDialog = null
-                    }
-                ) {
-                    Text("DELETE", color = ErrorCoral, fontWeight = FontWeight.Bold)
+            title = "Delete Folder?",
+            message = "Are you sure you want to delete \"${folder.name}\"? This action cannot be undone.",
+            icon = Icons.Default.Delete,
+            confirmText = "DELETE",
+            isDangerous = true,
+            onConfirm = {
+                scope.launch {
+                    viewModel?.deleteSubjectFolder(folder.id)
+                    android.widget.Toast.makeText(
+                        context,
+                        "Folder deleted",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
                 }
+                showDeleteDialog = null
             },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = null }) {
-                    Text("CANCEL", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            },
-            containerColor = MaterialTheme.colorScheme.surface,
-            shape = RoundedCornerShape(20.dp)
+            onDismiss = { showDeleteDialog = null }
         )
     }
     
     // Delete All Confirmation Dialog
     if (showDeleteAllDialog) {
-        AlertDialog(
+        UnifiedConfirmDialog(
             onDismissRequest = { showDeleteAllDialog = false },
-            title = {
-                Text(
-                    "Delete All Folders?",
-                    fontWeight = FontWeight.Bold,
-                    color = ErrorCoral
-                )
-            },
-            text = {
-                Text(
-                    "Are you sure you want to delete ALL ${folders.size} folders? This will also delete all exams inside them. This action cannot be undone.",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        scope.launch {
-                            folders.forEach { folder ->
-                                viewModel?.deleteSubjectFolder(folder.id)
-                            }
-                            android.widget.Toast.makeText(
-                                context,
-                                "All folders deleted",
-                                android.widget.Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        showDeleteAllDialog = false
+            title = "Delete All Folders?",
+            message = "Are you sure you want to delete ALL ${folders.size} folders? This will also delete all exams inside them. This action cannot be undone.",
+            icon = Icons.Default.DeleteForever,
+            confirmText = "DELETE ALL",
+            isDangerous = true,
+            onConfirm = {
+                scope.launch {
+                    folders.forEach { folder ->
+                        viewModel?.deleteSubjectFolder(folder.id)
                     }
-                ) {
-                    Text("DELETE ALL", color = ErrorCoral, fontWeight = FontWeight.Bold)
+                    android.widget.Toast.makeText(
+                        context,
+                        "All folders deleted",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
                 }
+                showDeleteAllDialog = false
             },
-            dismissButton = {
-                TextButton(onClick = { showDeleteAllDialog = false }) {
-                    Text("CANCEL", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            },
-            containerColor = MaterialTheme.colorScheme.surface,
-            shape = RoundedCornerShape(20.dp)
+            onDismiss = { showDeleteAllDialog = false }
         )
     }
     
@@ -664,4 +684,5 @@ fun SubjectFolderListScreen(
             shape = RoundedCornerShape(20.dp)
         )
     }
+    
 }

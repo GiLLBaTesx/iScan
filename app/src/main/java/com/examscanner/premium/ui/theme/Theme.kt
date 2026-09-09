@@ -11,11 +11,11 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-// Novelty Azure Glass - Light Ice Theme
+// Novelty Azure Glass - Light Ice Theme (Official Spec)
 private val AzureGlassColorScheme = lightColorScheme(
-    primary = ElectricBlue,
+    primary = ElectricBlue, // #003EC7 - Primary from spec
     onPrimary = FrostedWhite,
-    primaryContainer = IcyCyan,
+    primaryContainer = ElectricBlueContainer, // #0052FF - Primary container from spec
     onPrimaryContainer = DeepUltramarine,
     secondary = IcyCyan,
     onSecondary = FrostedWhite,
