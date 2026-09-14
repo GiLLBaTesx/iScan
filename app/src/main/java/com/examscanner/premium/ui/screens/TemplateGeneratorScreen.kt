@@ -68,7 +68,7 @@ fun TemplateGeneratorScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = SurfaceWhite
+                    containerColor = FrostedWhite // Azure Glass theme - pure white
                 )
             )
         }
@@ -77,7 +77,7 @@ fun TemplateGeneratorScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .background(BackgroundWhite)
+                .background(IceWhite) // Azure Glass theme - ice white background
                 .verticalScroll(rememberScrollState())
         ) {
             // Instructions Card
@@ -86,7 +86,7 @@ fun TemplateGeneratorScreen(
                     .fillMaxWidth()
                     .padding(16.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = LightBlue
+                    containerColor = IceBlue // Azure Glass theme - light blue tint
                 )
             ) {
                 Row(
@@ -98,7 +98,7 @@ fun TemplateGeneratorScreen(
                     Icon(
                         imageVector = Icons.Default.Warning, // Use Info icon
                         contentDescription = null,
-                        tint = PrimaryBlue,
+                        tint = ElectricBlue, // Azure Glass theme - primary blue
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
@@ -107,12 +107,12 @@ fun TemplateGeneratorScreen(
                             text = "Compact Design",
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
-                            color = TextPrimary
+                            color = TextPrimaryIce // Azure Glass theme
                         )
                         Text(
                             text = "Questions are split evenly into 2 columns. Fits more on one page!",
                             style = MaterialTheme.typography.bodySmall,
-                            color = TextSecondary
+                            color = TextSecondaryIce // Azure Glass theme
                         )
                     }
                 }
@@ -123,7 +123,7 @@ fun TemplateGeneratorScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+                colors = CardDefaults.cardColors(containerColor = SoftIce), // Azure Glass theme
                 elevation = CardDefaults.cardElevation(4.dp)
             ) {
                 Column(
@@ -136,7 +136,7 @@ fun TemplateGeneratorScreen(
                         text = "Template Settings",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = TextPrimary
+                        color = TextPrimaryIce // Azure Glass theme
                     )
 
                     // Template Name
@@ -171,7 +171,7 @@ fun TemplateGeneratorScreen(
                             text = "Choices per Question",
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium,
-                            color = TextPrimary
+                            color = TextPrimaryIce // Azure Glass theme
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(
@@ -198,7 +198,7 @@ fun TemplateGeneratorScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+                colors = CardDefaults.cardColors(containerColor = SoftIce), // Azure Glass theme
                 elevation = CardDefaults.cardElevation(2.dp)
             ) {
                 Row(
@@ -212,12 +212,12 @@ fun TemplateGeneratorScreen(
                             text = questionsPerColumn.toString(),
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold,
-                            color = PrimaryBlue
+                            color = ElectricBlue // Azure Glass theme - primary blue
                         )
                         Text(
                             text = "Questions per Column",
                             style = MaterialTheme.typography.bodySmall,
-                            color = TextSecondary,
+                            color = TextSecondaryIce, // Azure Glass theme
                             textAlign = TextAlign.Center
                         )
                     }
@@ -232,12 +232,12 @@ fun TemplateGeneratorScreen(
                             text = "2",
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold,
-                            color = SuccessGreen
+                            color = SuccessAzure // Azure Glass theme - success color
                         )
                         Text(
                             text = "Columns",
                             style = MaterialTheme.typography.bodySmall,
-                            color = TextSecondary,
+                            color = TextSecondaryIce, // Azure Glass theme
                             textAlign = TextAlign.Center
                         )
                     }
@@ -254,8 +254,8 @@ fun TemplateGeneratorScreen(
                     .padding(horizontal = 16.dp)
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (showPreview) WarningOrange else PrimaryBlue.copy(alpha = 0.1f),
-                    contentColor = if (showPreview) SurfaceWhite else PrimaryBlue
+                    containerColor = if (showPreview) WarningAmber else ElectricBlue.copy(alpha = 0.1f), // Azure Glass theme
+                    contentColor = if (showPreview) FrostedWhite else ElectricBlue // Azure Glass theme
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -285,7 +285,7 @@ fun TemplateGeneratorScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .height(64.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen),
+                colors = ButtonDefaults.buttonColors(containerColor = SuccessAzure), // Azure Glass theme
                 shape = RoundedCornerShape(16.dp),
                 enabled = templateName.isNotBlank() && questionsInt in 1..100
             ) {
@@ -311,7 +311,7 @@ fun TemplatePreviewCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+        colors = CardDefaults.cardColors(containerColor = SoftIce), // Azure Glass theme
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
@@ -323,7 +323,7 @@ fun TemplatePreviewCard(
                 text = "Preview (Scaled Down)",
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
-                color = TextSecondary,
+                color = TextSecondaryIce, // Azure Glass theme
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
@@ -376,7 +376,7 @@ fun QuestionPreviewRow(questionNumber: Int, choicesPerQuestion: Int) {
         Text(
             text = String.format("%2d", questionNumber),
             style = MaterialTheme.typography.labelSmall,
-            color = TextSecondary,
+            color = TextSecondaryIce, // Azure Glass theme
             modifier = Modifier.width(20.dp),
             fontSize = 10.sp
         )
@@ -389,13 +389,13 @@ fun QuestionPreviewRow(questionNumber: Int, choicesPerQuestion: Int) {
                     modifier = Modifier
                         .size(14.dp)
                         .border(1.dp, LightGray, RoundedCornerShape(2.dp))
-                        .background(SurfaceWhite, RoundedCornerShape(2.dp)),
+                        .background(FrostedWhite, RoundedCornerShape(2.dp)), // Azure Glass theme
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = ('A' + index).toString(),
                         fontSize = 8.sp,
-                        color = TextTertiary
+                        color = TextTertiaryIce // Azure Glass theme
                     )
                 }
             }
