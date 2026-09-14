@@ -45,25 +45,25 @@ val onboardingPages = listOf(
     OnboardingPage(
         title = "Scan & Grade Instantly",
         description = "Transform your smartphone into a powerful exam scanner. Capture answer sheets with your camera and get instant results.",
-        icon = Icons.Default.CameraAlt,
+        icon = Icons.Default.PhotoCamera,
         accentColor = LuminousAzure
     ),
     OnboardingPage(
         title = "Smart Analytics",
         description = "Detailed item analysis, difficulty indices, and student performance insights. Export to Excel or PDF with one tap.",
-        icon = Icons.Default.Analytics,
+        icon = Icons.Default.InsertChart,
         accentColor = IcyCyan
     ),
     OnboardingPage(
         title = "MELC Integration",
         description = "Tag questions with DepEd MELCs and track competency mastery. Perfect for Filipino educators.",
-        icon = Icons.Default.School,
+        icon = Icons.Default.MenuBook,
         accentColor = ElectricBlue
     ),
     OnboardingPage(
         title = "Secure & Private",
         description = "All exam data stored locally with military-grade encryption. Your students' information stays on your device.",
-        icon = Icons.Default.Security,
+        icon = Icons.Default.Lock,
         accentColor = SuccessGreen
     )
 )
@@ -255,39 +255,43 @@ fun OnboardingPageContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Icon in frosted glass card
+        // Icon in clean modern card
         Card(
             modifier = Modifier
-                .size(160.dp)
+                .size(180.dp)
                 .padding(bottom = 32.dp),
-            shape = RoundedCornerShape(32.dp),
+            shape = RoundedCornerShape(40.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color.White.copy(alpha = 0.7f)
+                containerColor = Color.White
             ),
             elevation = CardDefaults.cardElevation(
-                defaultElevation = 8.dp
+                defaultElevation = 12.dp
             )
         ) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                // Blurred background circle
+                // Subtle gradient background
                 Box(
                     modifier = Modifier
-                        .size(120.dp)
-                        .blur(30.dp)
+                        .fillMaxSize()
                         .background(
-                            page.accentColor.copy(alpha = 0.3f),
-                            CircleShape
+                            Brush.radialGradient(
+                                colors = listOf(
+                                    page.accentColor.copy(alpha = 0.08f),
+                                    Color.Transparent
+                                ),
+                                radius = 400f
+                            )
                         )
                 )
                 
-                // Icon
+                // Clean icon with solid color
                 Icon(
                     imageVector = page.icon,
                     contentDescription = null,
-                    modifier = Modifier.size(80.dp),
+                    modifier = Modifier.size(90.dp),
                     tint = page.accentColor
                 )
             }
