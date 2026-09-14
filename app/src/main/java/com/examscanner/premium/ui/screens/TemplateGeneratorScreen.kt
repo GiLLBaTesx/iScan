@@ -254,7 +254,7 @@ fun TemplateGeneratorScreen(
                     .padding(horizontal = 16.dp)
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (showPreview) WarningAmber else ElectricBlue.copy(alpha = 0.1f), // Azure Glass theme
+                    containerColor = if (showPreview) IcyCyan else ElectricBlue.copy(alpha = 0.1f), // Azure Glass theme - icy cyan when active
                     contentColor = if (showPreview) FrostedWhite else ElectricBlue // Azure Glass theme
                 ),
                 shape = RoundedCornerShape(12.dp)
