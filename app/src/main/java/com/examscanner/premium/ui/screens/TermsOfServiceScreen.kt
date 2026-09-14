@@ -44,7 +44,7 @@ fun TermsOfServiceScreen(
                 text = "Terms of Service",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.onSurface
             )
             
             Spacer(modifier = Modifier.height(8.dp))

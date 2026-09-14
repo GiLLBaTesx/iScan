@@ -44,7 +44,7 @@ fun PrivacyPolicyScreen(
                 text = "Privacy Policy",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.onSurface
             )
             
             Spacer(modifier = Modifier.height(8.dp))
@@ -301,7 +301,7 @@ fun SectionTitle(text: String) {
         text = text,
         fontSize = 20.sp,
         fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.primary
+        color = MaterialTheme.colorScheme.onSurface
     )
     Spacer(modifier = Modifier.height(12.dp))
 }
@@ -313,7 +313,7 @@ fun SubSectionTitle(text: String) {
         text = text,
         fontSize = 16.sp,
         fontWeight = FontWeight.SemiBold,
-        color = MaterialTheme.colorScheme.primary
+        color = MaterialTheme.colorScheme.onSurface
     )
     Spacer(modifier = Modifier.height(8.dp))
 }
@@ -339,7 +339,7 @@ fun BulletPoint(text: String) {
         Text(
             text = "• ",
             fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
             text = text,
@@ -361,7 +361,7 @@ fun ContactInfo(label: String, value: String) {
             text = "$label: ",
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.width(120.dp)
         )
         Text(
