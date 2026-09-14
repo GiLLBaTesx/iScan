@@ -173,7 +173,7 @@ fun ExamScannerApp(showRootWarning: Boolean = false) {
                             
                             val uri = androidx.core.content.FileProvider.getUriForFile(
                                 context,
-                                "${context.packageName}.provider",
+                                "${context.packageName}.fileprovider",
                                 file
                             )
                             
@@ -308,7 +308,7 @@ fun ExamScannerApp(showRootWarning: Boolean = false) {
                             // Share the generated PDF
                             val uri = androidx.core.content.FileProvider.getUriForFile(
                                 context,
-                                "${context.packageName}.provider",
+                                "${context.packageName}.fileprovider",
                                 file
                             )
                             

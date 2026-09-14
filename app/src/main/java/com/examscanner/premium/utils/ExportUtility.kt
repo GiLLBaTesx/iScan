@@ -102,7 +102,7 @@ object ExportUtility {
     fun shareFile(context: Context, file: File) {
         val uri = FileProvider.getUriForFile(
             context,
-            "${context.packageName}.provider",
+            "${context.packageName}.fileprovider",
             file
         )
         
