@@ -68,6 +68,14 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun ExamScannerApp(showRootWarning: Boolean = false) {
     var rootWarningDismissed by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    
+    // Check onboarding status
+    val onboardingPreferences = remember { 
+        com.examscanner.premium.data.OnboardingPreferences(context) 
+    }
+    val hasSeenOnboarding by onboardingPreferences.hasSeenOnboarding.collectAsState(initial = null)
+    val scope = rememberCoroutineScope()
     
     // Show security warning if device is rooted
     if (showRootWarning && !rootWarningDismissed) {
@@ -82,7 +90,33 @@ fun ExamScannerApp(showRootWarning: Boolean = false) {
         )
         return
     }
-    val context = LocalContext.current
+    
+    // Wait for onboarding status to load
+    if (hasSeenOnboarding == null) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+    
+    // Show onboarding if not seen, otherwise show main app
+    if (hasSeenOnboarding == false) {
+        OnboardingScreen(
+            onComplete = {
+                scope.launch {
+                    onboardingPreferences.setOnboardingCompleted()
+                }
+            }
+        )
+        return
+    }
+    
+    // Main app navigation
     val navController = rememberNavController()
     
     val database = remember { AppDatabase.getDatabase(context) }
@@ -92,7 +126,6 @@ fun ExamScannerApp(showRootWarning: Boolean = false) {
     )
     
     val detailState by viewModel.detailState.collectAsState()
-    val scope = rememberCoroutineScope()
     
     var currentExamId by remember { mutableStateOf<Long?>(null) }
     var capturedImageUri by remember { mutableStateOf<Uri?>(null) }
