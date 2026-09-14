@@ -20,10 +20,22 @@ class AuthRepository(private val context: Context) {
     
     suspend fun signUp(signUpData: SignUpData): Result<UserProfile> {
         return try {
-            // STEP 1: Check if device has already used trial
-            val trialCheckResult = TrialGuard.hasDeviceUsedTrial(context)
+            // STEP 1: Create Firebase Auth user first (need userId for device check)
+            val authResult = auth.createUserWithEmailAndPassword(
+                signUpData.email,
+                signUpData.password
+            ).await()
+            
+            val user = authResult.user ?: return Result.failure(
+                Exception("User creation failed")
+            )
+            
+            // STEP 2: Check if device has already used trial
+            val trialCheckResult = TrialGuard.hasDeviceUsedTrial(context, user.uid)
             if (trialCheckResult.isSuccess && trialCheckResult.getOrDefault(false)) {
-                // Device has already completed a trial
+                // Device has already completed a trial - delete the auth account
+                user.delete().await()
+                
                 TrialGuard.logTrialViolation(
                     context,
                     signUpData.email,
@@ -36,16 +48,6 @@ class AuthRepository(private val context: Context) {
                     )
                 )
             }
-            
-            // STEP 2: Create Firebase Auth user
-            val authResult = auth.createUserWithEmailAndPassword(
-                signUpData.email,
-                signUpData.password
-            ).await()
-            
-            val user = authResult.user ?: return Result.failure(
-                Exception("User creation failed")
-            )
             
             // STEP 3: Update display name
             val profileUpdates = UserProfileChangeRequest.Builder()
@@ -194,7 +196,12 @@ class AuthRepository(private val context: Context) {
      * Returns error message if device already used trial
      */
     suspend fun canDeviceStartTrial(): Pair<Boolean, String?> {
-        val result = TrialGuard.hasDeviceUsedTrial(context)
+        val user = currentUser
+        if (user == null) {
+            return Pair(true, null) // Allow if not authenticated yet
+        }
+        
+        val result = TrialGuard.hasDeviceUsedTrial(context, user.uid)
         return if (result.isSuccess) {
             val hasUsed = result.getOrDefault(false)
             if (hasUsed) {

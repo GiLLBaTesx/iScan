@@ -54,8 +54,9 @@ object TrialGuard {
     /**
      * Check if device has already used trial
      * Returns true if device is flagged as having completed trial
+     * NOTE: This now requires user to be authenticated
      */
-    suspend fun hasDeviceUsedTrial(context: Context): Result<Boolean> {
+    suspend fun hasDeviceUsedTrial(context: Context, userId: String): Result<Boolean> {
         return try {
             val deviceId = getDeviceFingerprint(context)
             
@@ -67,7 +68,11 @@ object TrialGuard {
             if (!doc.exists()) {
                 Result.success(false)
             } else {
+                // Verify this trial record belongs to current user or check flag
+                val recordUserId = doc.getString("userId")
                 val trialUsed = doc.getBoolean("trialUsed") ?: false
+                
+                // If trial is used and it's the same device, block regardless of user
                 Result.success(trialUsed)
             }
         } catch (e: Exception) {

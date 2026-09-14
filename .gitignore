@@ -13,5 +13,14 @@
 .externalNativeBuild
 .cxx
 local.properties
+
 # VS Code Local History
 .history/
+
+# Firebase configuration (contains API keys and project IDs)
+google-services.json
+app/google-services.json
+
+# Keystore files (never commit signing keys)
+*.jks
+*.keystore
