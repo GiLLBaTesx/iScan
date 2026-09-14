@@ -1,0 +1,65 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Analytics Events - Users can write their own events, but cannot read others'
+    match /analytics_events/{eventId} {
+      // Users can create analytics events
+      allow create: if request.auth != null && 
+                       request.resource.data.user_id == request.auth.uid;
+      
+      // Only developer can read (via Firebase Console or Admin SDK)
+      allow read: if false;  // Use Admin SDK for reading
+    }
+    
+    // Daily Metrics - Aggregated stats per user per day
+    match /daily_metrics/{metricId} {
+      // Users can update their own daily metrics
+      allow write: if request.auth != null && 
+                      request.resource.data.user_id == request.auth.uid;
+      
+      // Users can read their own metrics (for in-app stats if needed)
+      allow read: if request.auth != null && 
+                     resource.data.user_id == request.auth.uid;
+    }
+    
+    // Developer Alerts - Critical errors and issues
+    match /developer_alerts/{alertId} {
+      // Users can create alerts (error reports)
+      allow create: if request.auth != null;
+      
+      // Only developer can read
+      allow read: if false;  // Use Admin SDK
+      
+      // Only developer can mark as read
+      allow update: if false;  // Use Admin SDK
+    }
+    
+    // Usage Reports - Periodic summaries
+    match /usage_reports/{reportId} {
+      // System-generated, users can write
+      allow create: if request.auth != null;
+      
+      // Only developer can read
+      allow read: if false;  // Use Admin SDK
+    }
+    
+    // Developer Reports - Weekly/monthly summaries
+    match /developer_reports/{reportId} {
+      // System-generated only
+      allow write: if false;  // Use Cloud Functions or Admin SDK
+      
+      // Only developer can read
+      allow read: if false;  // Use Admin SDK
+    }
+    
+    // Anonymous Analytics - For users not logged in
+    match /anonymous_analytics/{eventId} {
+      // Anyone can write anonymous events
+      allow create: if true;
+      
+      // Only developer can read
+      allow read: if false;
+    }
+  }
+}

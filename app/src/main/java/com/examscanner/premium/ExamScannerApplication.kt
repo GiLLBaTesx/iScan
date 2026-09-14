@@ -1,7 +1,9 @@
 package com.examscanner.premium
 
 import android.app.Application
+import com.examscanner.premium.analytics.SessionTracker
 import com.examscanner.premium.data.AppDatabase
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -11,10 +13,25 @@ class ExamScannerApplication : Application() {
     
     override fun onCreate() {
         super.onCreate()
+        
+        // Initialize analytics and session tracking
+        initializeAnalytics()
+        
         // Seed initial data including MELCs
         CoroutineScope(Dispatchers.IO).launch {
             seedDatabase()
         }
+    }
+    
+    private fun initializeAnalytics() {
+        // Get current user ID (or null if not logged in)
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        
+        // Initialize session tracker
+        val sessionTracker = SessionTracker.getInstance(userId)
+        sessionTracker.initialize()
+        
+        android.util.Log.d("ExamScannerApp", "✅ Analytics initialized for user: ${userId ?: "anonymous"}")
     }
     
     private suspend fun seedDatabase() {
@@ -37,4 +54,3 @@ class ExamScannerApplication : Application() {
         }
     }
 }
-
