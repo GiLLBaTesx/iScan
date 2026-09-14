@@ -263,29 +263,20 @@ object BackupManager {
                 return false
             }
             
-            // Try to open as SQLite database
-            val db = android.database.sqlite.SQLiteDatabase.openDatabase(
-                backupFile.absolutePath,
-                null,
-                android.database.sqlite.SQLiteDatabase.OPEN_READONLY
-            )
-            
-            // Check if required tables exist
-            val cursor = db.rawQuery(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('exams', 'subject_folders', 'answer_keys')",
-                null
-            )
-            
-            val tableCount = cursor.count
-            cursor.close()
-            db.close()
-            
-            if (tableCount < 3) {
-                Log.e(TAG, "Backup file is missing required tables")
+            // For encrypted database (SQLCipher), we can't easily verify without the passphrase
+            // Instead, just check file exists and has reasonable size
+            if (backupFile.length() < 1000) {
+                Log.e(TAG, "Backup file too small, likely corrupted")
                 return false
             }
             
-            Log.i(TAG, "Backup verification passed")
+            // Check file is readable
+            if (!backupFile.canRead()) {
+                Log.e(TAG, "Backup file is not readable")
+                return false
+            }
+            
+            Log.i(TAG, "Backup verification passed (file exists, reasonable size, readable)")
             true
             
         } catch (e: Exception) {
