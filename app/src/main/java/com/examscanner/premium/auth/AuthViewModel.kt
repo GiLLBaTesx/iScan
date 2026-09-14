@@ -1,14 +1,17 @@
 package com.examscanner.premium.auth
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class AuthViewModel(
-    private val repository: AuthRepository = AuthRepository()
-) : ViewModel() {
+    application: Application
+) : AndroidViewModel(application) {
+    
+    private val repository: AuthRepository = AuthRepository(application.applicationContext)
     
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
     val authState: StateFlow<AuthState> = _authState

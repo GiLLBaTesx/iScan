@@ -1,5 +1,7 @@
 package com.examscanner.premium.auth
 
+import android.content.Context
+import com.examscanner.premium.utils.TrialGuard
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.UserProfileChangeRequest
@@ -7,7 +9,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import java.util.concurrent.TimeUnit
 
-class AuthRepository {
+class AuthRepository(private val context: Context) {
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
     
@@ -18,7 +20,24 @@ class AuthRepository {
     
     suspend fun signUp(signUpData: SignUpData): Result<UserProfile> {
         return try {
-            // Create Firebase Auth user
+            // STEP 1: Check if device has already used trial
+            val trialCheckResult = TrialGuard.hasDeviceUsedTrial(context)
+            if (trialCheckResult.isSuccess && trialCheckResult.getOrDefault(false)) {
+                // Device has already completed a trial
+                TrialGuard.logTrialViolation(
+                    context,
+                    signUpData.email,
+                    "Attempted signup on device that already completed trial"
+                )
+                return Result.failure(
+                    TrialAbusedException(
+                        "This device has already used the 14-day trial. " +
+                        "Please sign in with your existing account or subscribe to continue."
+                    )
+                )
+            }
+            
+            // STEP 2: Create Firebase Auth user
             val authResult = auth.createUserWithEmailAndPassword(
                 signUpData.email,
                 signUpData.password
@@ -28,16 +47,16 @@ class AuthRepository {
                 Exception("User creation failed")
             )
             
-            // Update display name
+            // STEP 3: Update display name
             val profileUpdates = UserProfileChangeRequest.Builder()
                 .setDisplayName(signUpData.displayName)
                 .build()
             user.updateProfile(profileUpdates).await()
             
-            // Calculate trial expiration (14 days from now)
+            // STEP 4: Calculate trial expiration (14 days from now)
             val trialExpiresAt = System.currentTimeMillis() + TRIAL_DURATION_MILLIS
             
-            // Create user profile in Firestore
+            // STEP 5: Create user profile in Firestore
             val userProfile = UserProfile(
                 uid = user.uid,
                 email = signUpData.email,
@@ -50,7 +69,7 @@ class AuthRepository {
                 createdAt = System.currentTimeMillis()
             )
             
-            // Save to Firestore
+            // STEP 6: Save to Firestore
             firestore.collection("users")
                 .document(user.uid)
                 .collection("profile")
@@ -58,7 +77,12 @@ class AuthRepository {
                 .set(userProfile.toMap())
                 .await()
             
+            // STEP 7: Register device trial start (track this device)
+            TrialGuard.registerTrialStart(context, user.uid, signUpData.email)
+            
             Result.success(userProfile)
+        } catch (e: TrialAbusedException) {
+            Result.failure(e)
         } catch (e: FirebaseAuthException) {
             Result.failure(Exception(getAuthErrorMessage(e.errorCode)))
         } catch (e: Exception) {
@@ -156,6 +180,37 @@ class AuthRepository {
         return TimeUnit.MILLISECONDS.toDays(remainingMillis).toInt()
     }
     
+    /**
+     * Mark trial as completed for this device
+     * Call this when trial expires or user subscribes
+     */
+    suspend fun markTrialCompleted() {
+        val user = currentUser ?: return
+        TrialGuard.flagTrialComplete(context, user.uid)
+    }
+    
+    /**
+     * Check if device can start trial
+     * Returns error message if device already used trial
+     */
+    suspend fun canDeviceStartTrial(): Pair<Boolean, String?> {
+        val result = TrialGuard.hasDeviceUsedTrial(context)
+        return if (result.isSuccess) {
+            val hasUsed = result.getOrDefault(false)
+            if (hasUsed) {
+                Pair(
+                    false,
+                    "This device has already used the 14-day trial. " +
+                    "Please sign in with your existing account or subscribe."
+                )
+            } else {
+                Pair(true, null)
+            }
+        } else {
+            Pair(true, null) // Allow trial on error (fail open)
+        }
+    }
+    
     private fun getAuthErrorMessage(errorCode: String): String {
         return when (errorCode) {
             "ERROR_INVALID_EMAIL" -> "Invalid email address"
@@ -203,3 +258,9 @@ class AuthRepository {
         )
     }
 }
+
+
+/**
+ * Exception thrown when trial abuse is detected
+ */
+class TrialAbusedException(message: String) : Exception(message)
