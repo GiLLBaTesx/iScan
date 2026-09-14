@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.examscanner.premium.ui.theme.IceBlue
+import com.examscanner.premium.ui.theme.TextPrimaryIce
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -267,7 +269,7 @@ fun PrivacyPolicyScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                    containerColor = IceBlue // Light blue tint - commonly used in app theme
                 )
             ) {
                 Column(
@@ -277,14 +279,14 @@ fun PrivacyPolicyScreen(
                         text = "🔒 Your Privacy is Our Priority",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = TextPrimaryIce // Dark text on light blue background
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "We are committed to protecting your data and your students' privacy. " +
                                 "All exam data stays on your device, encrypted and secure.",
                         fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = TextPrimaryIce // Dark text on light blue background
                     )
                 }
             }
