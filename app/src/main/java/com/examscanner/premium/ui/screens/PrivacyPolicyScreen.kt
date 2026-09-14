@@ -1,398 +1,373 @@
 package com.examscanner.premium.ui.screens
 
-import androidx.compose.foundation.background
-import com.examscanner.premium.ui.theme.*
 import androidx.compose.foundation.layout.*
-import com.examscanner.premium.ui.theme.*
 import androidx.compose.foundation.rememberScrollState
-import com.examscanner.premium.ui.theme.*
 import androidx.compose.foundation.verticalScroll
-import com.examscanner.premium.ui.theme.*
 import androidx.compose.material.icons.Icons
-import com.examscanner.premium.ui.theme.*
-import androidx.compose.material.icons.filled.ArrowBack
-import com.examscanner.premium.ui.theme.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
-import com.examscanner.premium.ui.theme.*
-import androidx.compose.runtime.*
-import com.examscanner.premium.ui.theme.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.examscanner.premium.ui.theme.*
-import androidx.compose.ui.graphics.Brush
-import com.examscanner.premium.ui.theme.*
-import androidx.compose.ui.graphics.Color
-import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.text.font.FontWeight
-import com.examscanner.premium.ui.theme.*
 import androidx.compose.ui.unit.dp
-import com.examscanner.premium.ui.theme.*
+import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrivacyPolicyScreen(
     onBack: () -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFFFAFAFC),
-                        Color(0xFFF0F4F8)
-                    )
-                )
-            )
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            // Top Bar
+    Scaffold(
+        topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        text = "Privacy Policy",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
+                title = { Text("Privacy Policy") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            tint = ElectricBlue
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
+                    containerColor = MaterialTheme.colorScheme.surface
                 )
             )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp)
+        ) {
+            // Header
+            Text(
+                text = "Privacy Policy",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
             
-            // Content
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 20.dp)
-                    .verticalScroll(rememberScrollState())
-                    .padding(bottom = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(
+                text = "Last Updated: September 4, 2026",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            // Introduction
+            SectionTitle("1. Introduction")
+            SectionText(
+                "iScan Technologies ('we', 'our', or 'us') is committed to protecting your privacy. " +
+                "This Privacy Policy explains how we collect, use, and safeguard your information when you use " +
+                "the iScan mobile application ('the App')."
+            )
+            
+            SectionText(
+                "By using iScan, you agree to the collection and use of information in accordance with this policy. " +
+                "If you do not agree with our policies and practices, please do not use the App."
+            )
+            
+            // Information We Collect
+            SectionTitle("2. Information We Collect")
+            
+            SubSectionTitle("2.1 Information You Provide")
+            SectionText(
+                "When you create an account, we collect:"
+            )
+            BulletPoint("Email address")
+            BulletPoint("Display name")
+            BulletPoint("School name (optional)")
+            BulletPoint("Grade level and subjects taught (optional)")
+            BulletPoint("Password (encrypted and never stored in plain text)")
+            
+            SubSectionTitle("2.2 Student Data")
+            SectionText(
+                "When you use the exam scanning features:"
+            )
+            BulletPoint("Student names and IDs (provided by you)")
+            BulletPoint("Exam scores and answers")
+            BulletPoint("Scanned answer sheet images (stored locally)")
+            BulletPoint("Performance analytics and statistics")
+            
+            SubSectionTitle("2.3 Device Information")
+            SectionText(
+                "We collect limited device information for security and trial management:"
+            )
+            BulletPoint("Device model and manufacturer")
+            BulletPoint("Android version")
+            BulletPoint("Unique device identifier (hashed for privacy)")
+            BulletPoint("App version and crash reports")
+            
+            SubSectionTitle("2.4 Usage Data")
+            SectionText(
+                "We collect anonymous usage statistics to improve the App:"
+            )
+            BulletPoint("Feature usage frequency")
+            BulletPoint("Performance metrics")
+            BulletPoint("Error logs (anonymized)")
+            
+            // How We Use Your Information
+            SectionTitle("3. How We Use Your Information")
+            SectionText("We use the collected information for:")
+            BulletPoint("Providing and maintaining the App's functionality")
+            BulletPoint("User authentication and account management")
+            BulletPoint("Storing your exam data securely on your device")
+            BulletPoint("Preventing trial abuse and fraudulent usage")
+            BulletPoint("Improving app performance and user experience")
+            BulletPoint("Sending important service announcements")
+            BulletPoint("Providing customer support")
+            
+            // Data Storage and Security
+            SectionTitle("4. Data Storage and Security")
+            
+            SubSectionTitle("4.1 Local Storage")
+            SectionText(
+                "ALL student exam data is stored locally on your device using military-grade SQLCipher " +
+                "encryption (AES-256). This data includes:"
+            )
+            BulletPoint("Student names and IDs")
+            BulletPoint("Exam scores and answers")
+            BulletPoint("Answer sheet images")
+            BulletPoint("Analytics and reports")
+            
+            SectionText(
+                "⚠️ IMPORTANT: We do NOT upload or sync student exam data to our servers or cloud storage. " +
+                "Your students' information stays on your device."
+            )
+            
+            SubSectionTitle("4.2 Cloud Storage")
+            SectionText(
+                "Only the following data is stored in our secure Firebase servers:"
+            )
+            BulletPoint("Your account information (email, name, school)")
+            BulletPoint("Subscription status and trial period")
+            BulletPoint("Device trial usage (for abuse prevention)")
+            
+            SubSectionTitle("4.3 Security Measures")
+            SectionText("We implement industry-standard security measures:")
+            BulletPoint("AES-256 encryption for local database")
+            BulletPoint("HTTPS/TLS encryption for all network communications")
+            BulletPoint("Firebase Authentication with secure password hashing")
+            BulletPoint("Android Keystore for encryption key management")
+            BulletPoint("Root detection and security warnings")
+            BulletPoint("Regular security audits and updates")
+            
+            // Data Sharing
+            SectionTitle("5. Data Sharing and Disclosure")
+            SectionText(
+                "We DO NOT sell, trade, or rent your personal information to third parties. " +
+                "Your student exam data is NEVER shared with anyone."
+            )
+            
+            SectionText("We may share limited information only in these cases:")
+            BulletPoint("With your explicit consent")
+            BulletPoint("To comply with legal obligations or court orders")
+            BulletPoint("To protect our rights, property, or safety")
+            BulletPoint("In connection with a merger or acquisition (with user notification)")
+            
+            // Third-Party Services
+            SectionTitle("6. Third-Party Services")
+            SectionText("iScan uses the following third-party services:")
+            
+            BulletPoint("Firebase Authentication (Google) - User authentication")
+            BulletPoint("Firebase Firestore (Google) - User profile storage")
+            BulletPoint("Google ML Kit - On-device text recognition (offline)")
+            
+            SectionText(
+                "These services have their own privacy policies. Google's privacy policy can be found at: " +
+                "https://policies.google.com/privacy"
+            )
+            
+            // Your Rights
+            SectionTitle("7. Your Privacy Rights")
+            SectionText("You have the right to:")
+            BulletPoint("Access your personal data")
+            BulletPoint("Correct inaccurate data")
+            BulletPoint("Request deletion of your data")
+            BulletPoint("Export your data")
+            BulletPoint("Withdraw consent for data processing")
+            BulletPoint("Object to data processing")
+            BulletPoint("Lodge a complaint with supervisory authorities")
+            
+            // GDPR Rights
+            SubSectionTitle("7.1 GDPR Rights (EU Users)")
+            SectionText(
+                "If you are in the European Union, you have additional rights under GDPR:"
+            )
+            BulletPoint("Right to data portability")
+            BulletPoint("Right to restrict processing")
+            BulletPoint("Right to object to automated decision-making")
+            
+            // Data Retention
+            SectionTitle("8. Data Retention")
+            SectionText(
+                "• Account data: Retained while your account is active" +
+                "\n• Deleted account data: Permanently deleted within 30 days" +
+                "\n• Local exam data: Stored on your device until you delete it" +
+                "\n• Backup data: Stored locally until manually deleted" +
+                "\n• Analytics data: Anonymized and retained for 24 months"
+            )
+            
+            // Children's Privacy
+            SectionTitle("9. Children's Privacy")
+            SectionText(
+                "iScan is designed for use by educators (adults 18+). While the App processes student data " +
+                "including minors' information, we do not knowingly collect personal information directly from " +
+                "children under 13."
+            )
+            
+            SectionText(
+                "If you are an educator using iScan with students under 13, you are responsible for:"
+            )
+            BulletPoint("Obtaining necessary parental/guardian consents")
+            BulletPoint("Complying with COPPA and local data protection laws")
+            BulletPoint("Ensuring proper data handling and security")
+            
+            // International Users
+            SectionTitle("10. International Data Transfers")
+            SectionText(
+                "Your account information may be transferred to and maintained on servers located outside your " +
+                "country. We ensure appropriate safeguards are in place for such transfers."
+            )
+            
+            SectionText(
+                "Student exam data is ONLY stored locally on your device and is never transferred internationally."
+            )
+            
+            // Changes to Privacy Policy
+            SectionTitle("11. Changes to This Privacy Policy")
+            SectionText(
+                "We may update our Privacy Policy from time to time. We will notify you of any changes by:"
+            )
+            BulletPoint("Posting the new Privacy Policy in the App")
+            BulletPoint("Updating the 'Last Updated' date")
+            BulletPoint("Sending a notification for significant changes")
+            
+            SectionText(
+                "Continued use of the App after changes constitutes acceptance of the updated policy."
+            )
+            
+            // Contact Information
+            SectionTitle("12. Contact Us")
+            SectionText(
+                "If you have questions about this Privacy Policy or want to exercise your privacy rights, " +
+                "please contact us:"
+            )
+            
+            ContactInfo("Email", "privacy@iscan.app")
+            ContactInfo("Support", "support@iscan.app")
+            ContactInfo("Address", "iScan Technologies, Philippines")
+            ContactInfo("Response Time", "Within 48 hours for privacy requests")
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
             ) {
-                // Header Card
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = ElectricBlue.copy(alpha = 0.1f)
-                    )
+                Column(
+                    modifier = Modifier.padding(16.dp)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        Text(
-                            text = "🔒 Your Privacy Matters",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = ElectricBlue
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "All student data is stored locally on your device. We do not collect, access, or share any information.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color(0xFF1C1C1E)
-                        )
-                    }
-                }
-                
-                Text(
-                    text = "Last Updated: September 4, 2026",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFF8E8E93)
-                )
-                
-                // Introduction
-                SectionTitle("Introduction")
-                SectionText(
-                    "Offline Assessment is committed to protecting the privacy of teachers and students. " +
-                    "This Privacy Policy explains how we collect, use, store, and protect information when you use our mobile application."
-                )
-                
-                // Data Controller
-                SectionTitle("Data Controller")
-                HighlightCard(
-                    "You (the teacher) are the data controller for your students' information. " +
-                    "We (the app developers) do not have access to any data stored in the app."
-                )
-                
-                // Developer Responsibilities
-                SectionTitle("Developer Responsibilities")
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = ElectricBlue.copy(alpha = 0.05f)
+                    Text(
+                        text = "🔒 Your Privacy is Our Priority",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Text(
-                            text = "As the app developers, we commit to:",
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        
-                        Text("✓ No data collection or external transmission", style = MaterialTheme.typography.bodySmall)
-                        Text("✓ No tracking, analytics, or advertising", style = MaterialTheme.typography.bodySmall)
-                        Text("✓ Local storage only architecture", style = MaterialTheme.typography.bodySmall)
-                        Text("✓ Regular security updates and bug fixes", style = MaterialTheme.typography.bodySmall)
-                        Text("✓ Transparent privacy policy updates", style = MaterialTheme.typography.bodySmall)
-                        Text("✓ Prompt response to security issues", style = MaterialTheme.typography.bodySmall)
-                        
-                        Spacer(modifier = Modifier.height(8.dp))
-                        
-                        Text(
-                            text = "We are NOT responsible for:",
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text("• User compliance with laws and policies", style = MaterialTheme.typography.bodySmall)
-                        Text("• Device security (lost/stolen devices)", style = MaterialTheme.typography.bodySmall)
-                        Text("• How users share exported data", style = MaterialTheme.typography.bodySmall)
-                        Text("• Data loss due to user error", style = MaterialTheme.typography.bodySmall)
-                    }
-                }
-                
-                // What We Collect
-                SectionTitle("Information We Store Locally")
-                SectionText("The app allows you to store the following on YOUR device:")
-                BulletPoint("Student names and identification numbers")
-                BulletPoint("Exam scores and results")
-                BulletPoint("Answer sheet scans (processed locally)")
-                BulletPoint("Subject folders and assessments")
-                BulletPoint("DepEd MELCs mappings")
-                
-                // What We DON'T Collect
-                SectionTitle("What We DO NOT Collect")
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFF34C759).copy(alpha = 0.1f)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "We are committed to protecting your data and your students' privacy. " +
+                                "All exam data stays on your device, encrypted and secure.",
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text("✓ No personal information collected", style = MaterialTheme.typography.bodyMedium)
-                        Text("✓ No location tracking", style = MaterialTheme.typography.bodyMedium)
-                        Text("✓ No contact access", style = MaterialTheme.typography.bodyMedium)
-                        Text("✓ No data shared with third parties", style = MaterialTheme.typography.bodyMedium)
-                        Text("✓ No external server uploads", style = MaterialTheme.typography.bodyMedium)
-                        Text("✓ No analytics or tracking", style = MaterialTheme.typography.bodyMedium)
-                    }
                 }
-                
-                // Data Storage
-                SectionTitle("How We Store Your Data")
-                SectionText("All data is stored locally on your Android device:")
-                BulletPoint("Encrypted SQLite database in app-private storage")
-                BulletPoint("No internet connection required")
-                BulletPoint("No data transmitted to external servers")
-                BulletPoint("Protected by Android OS security")
-                
-                // Camera Access
-                SectionTitle("Camera Access")
-                SectionText(
-                    "Camera is only used for scanning answer sheets. Photos are processed immediately " +
-                    "and discarded. We do not save raw photos unless you explicitly export them."
-                )
-                
-                // Data Security
-                SectionTitle("Your Responsibility")
-                HighlightCard(
-                    "As the data controller, you are responsible for:\n\n" +
-                    "• Securing your device with PIN/password/biometric lock\n" +
-                    "• Backing up important data to secure cloud storage\n" +
-                    "• Not sharing your device with unauthorized persons\n" +
-                    "• Complying with your school's data protection policies"
-                )
-                
-                // Data Sharing
-                SectionTitle("Data Sharing")
-                SectionText(
-                    "We do NOT share any data. The app allows YOU to share if you choose:\n\n" +
-                    "• Export backup files (you decide where)\n" +
-                    "• Share reports via email (you choose recipients)\n" +
-                    "• Print or export PDFs (under your control)"
-                )
-                
-                // Children's Privacy
-                SectionTitle("Children's Privacy & Teacher Responsibilities")
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFFF9500).copy(alpha = 0.1f)
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(
-                            "This app is designed for teacher use only.",
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text("Teachers must:", fontWeight = FontWeight.SemiBold)
-                        Text("• Obtain necessary consent from parents/guardians")
-                        Text("• Comply with DepEd regulations and school policies")
-                        Text("• Follow Philippine Data Privacy Act (RA 10173)")
-                        Text("• Only collect data necessary for assessment")
-                        Text("• Use student IDs instead of full names when possible")
-                    }
-                }
-                
-                // Best Practices
-                SectionTitle("Security Best Practices")
-                SectionText("To protect student privacy:")
-                BulletPoint("Enable device lock (PIN/password/fingerprint)")
-                BulletPoint("Enable device encryption (default on modern Android)")
-                BulletPoint("Create regular backups to secure cloud storage")
-                BulletPoint("Delete student data after school year ends")
-                BulletPoint("Don't leave device unattended")
-                BulletPoint("Use 'Clear All Data' feature (creates safety backup)")
-                
-                // Your Rights
-                SectionTitle("Your Rights (Philippine Data Privacy Act)")
-                BulletPoint("Access: View all data at any time")
-                BulletPoint("Rectification: Edit or correct information")
-                BulletPoint("Erasure: Delete records or clear all data")
-                BulletPoint("Data Portability: Export in CSV, PDF, or database backup")
-                BulletPoint("Object: Stop using the app at any time")
-                
-                // Compliance
-                SectionTitle("Legal Compliance")
-                SectionText("This app helps you comply with:")
-                BulletPoint("Philippine Data Privacy Act (RA 10173)")
-                BulletPoint("DepEd Data Privacy Guidelines")
-                BulletPoint("FERPA principles")
-                BulletPoint("GDPR principles (where applicable)")
-                
-                HighlightCard(
-                    "Important: You (the teacher) are responsible for ensuring your use of the app " +
-                    "complies with your school's policies and applicable laws."
-                )
-                
-                // Contact
-                SectionTitle("Contact Information")
-                SectionText(
-                    "For privacy questions:\n\n" +
-                    "• Contact your school's Data Protection Officer\n" +
-                    "• Philippine National Privacy Commission: https://privacy.gov.ph"
-                )
-                
-                // Consent
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = ElectricBlue.copy(alpha = 0.05f)
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        Text(
-                            text = "By Using This App",
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "You acknowledge that you have read and understood this Privacy Policy, " +
-                            "and you accept responsibility as the data controller for your students' information.",
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                }
-                
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
-                
-                Text(
-                    text = "Offline Assessment v1.0.0",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFF8E8E93),
-                    modifier = Modifier.padding(bottom = 20.dp)
-                )
             }
+            
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
 
 @Composable
-private fun SectionTitle(text: String) {
+fun SectionTitle(text: String) {
+    Spacer(modifier = Modifier.height(24.dp))
     Text(
         text = text,
-        style = MaterialTheme.typography.titleMedium,
+        fontSize = 20.sp,
         fontWeight = FontWeight.Bold,
-        color = Color(0xFF1C1C1E),
-        modifier = Modifier.padding(top = 8.dp)
+        color = MaterialTheme.colorScheme.primary
     )
+    Spacer(modifier = Modifier.height(12.dp))
 }
 
 @Composable
-private fun SectionText(text: String) {
+fun SubSectionTitle(text: String) {
+    Spacer(modifier = Modifier.height(16.dp))
     Text(
         text = text,
-        style = MaterialTheme.typography.bodyMedium,
-        color = Color(0xFF3A3A3C)
+        fontSize = 16.sp,
+        fontWeight = FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.primary
     )
+    Spacer(modifier = Modifier.height(8.dp))
 }
 
 @Composable
-private fun BulletPoint(text: String) {
+fun SectionText(text: String) {
+    Text(
+        text = text,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        color = MaterialTheme.colorScheme.onSurface
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+}
+
+@Composable
+fun BulletPoint(text: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 8.dp)
+            .padding(start = 16.dp, bottom = 4.dp)
     ) {
         Text(
             text = "• ",
-            style = MaterialTheme.typography.bodyMedium,
-            color = ElectricBlue
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.primary
         )
         Text(
             text = text,
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color(0xFF3A3A3C),
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
     }
 }
 
 @Composable
-private fun HighlightCard(text: String) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFF9500).copy(alpha = 0.05f)
-        )
+fun ContactInfo(label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp, horizontal = 16.dp)
     ) {
         Text(
-            text = text,
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color(0xFF1C1C1E),
-            modifier = Modifier.padding(16.dp)
+            text = "$label: ",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.width(120.dp)
+        )
+        Text(
+            text = value,
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

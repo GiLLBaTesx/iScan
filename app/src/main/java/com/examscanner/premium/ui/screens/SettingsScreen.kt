@@ -30,7 +30,8 @@ fun SettingsScreen(
     onCreateTemplate: () -> Unit = {},
     onDownloadTemplate: (String, Int) -> Unit = { _, _ -> },
     onPrivacyPolicy: () -> Unit = {},
-    onRecycleBin: () -> Unit = {}
+    onRecycleBin: () -> Unit = {},
+    onAbout: () -> Unit = {}
 ) {
     val context = LocalContext.current
     var showAboutDialog by remember { mutableStateOf(false) }
@@ -112,9 +113,9 @@ fun SettingsScreen(
                 SettingsGroup {
                     SettingsItem(
                         icon = Icons.Default.Info,
-                        title = "About",
-                        subtitle = "Version 1.0.0",
-                        onClick = { showAboutDialog = true }
+                        title = "About iScan",
+                        subtitle = "App information and credits",
+                        onClick = onAbout
                     )
                     
                     Divider(color = Color(0xFFE5E5EA), thickness = 0.5.dp)

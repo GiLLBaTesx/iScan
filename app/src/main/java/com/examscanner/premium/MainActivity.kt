@@ -156,6 +156,7 @@ fun ExamScannerApp(showRootWarning: Boolean = false) {
         composable("settings") {
             SettingsScreen(
                 onBack = { navController.popBackStack() },
+                onAbout = { navController.navigate("about") },
                 onCreateTemplate = {
                     navController.navigate("template_generator")
                 },
@@ -711,6 +712,33 @@ fun ExamScannerApp(showRootWarning: Boolean = false) {
                     }
                 },
                 onCancel = { navController.popBackStack() }
+            )
+        }
+        
+        // About Screen
+        composable("about") {
+            AboutScreen(
+                onBack = { navController.popBackStack() },
+                onPrivacyPolicy = { navController.navigate("privacy_policy") },
+                onTermsOfService = { navController.navigate("terms_of_service") },
+                onLicenses = {
+                    // TODO: Open system licenses screen or create custom one
+                    Toast.makeText(context, "Open source licenses", Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
+        
+        // Privacy Policy Screen
+        composable("privacy_policy") {
+            PrivacyPolicyScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        
+        // Terms of Service Screen
+        composable("terms_of_service") {
+            TermsOfServiceScreen(
+                onBack = { navController.popBackStack() }
             )
         }
     }
