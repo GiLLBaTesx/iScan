@@ -49,12 +49,18 @@ fun StudentRosterScreen(
     var showDeleteDialog by remember { mutableStateOf<StudentEntity?>(null) }
     var showMenu by remember { mutableStateOf(false) }
     
-    // CSV file picker
-    val csvPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
+    // Roster file picker: accepts CSV or XLSX. OpenDocument takes an array of MIME
+    // types so the user can pick either a plain-text/CSV file or an Excel workbook.
+    // The caller (MainActivity) detects the actual format from the returned Uri.
+    val rosterPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         uri?.let { onImportCSV(it) }
     }
+    val rosterPickerMimeTypes = arrayOf(
+        "text/*",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
     
     Scaffold(
         topBar = {
@@ -89,10 +95,10 @@ fun StudentRosterScreen(
                             onDismissRequest = { showMenu = false }
                         ) {
                             DropdownMenuItem(
-                                text = { Text("Import CSV") },
+                                text = { Text("Import Roster (CSV/Excel)") },
                                 onClick = {
                                     showMenu = false
-                                    csvPickerLauncher.launch("text/*")
+                                    rosterPickerLauncher.launch(rosterPickerMimeTypes)
                                 },
                                 leadingIcon = {
                                     Icon(Icons.Default.FileUpload, null)

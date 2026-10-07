@@ -619,26 +619,48 @@ fun ExamScannerApp() {
                 onImportCSV = { uri ->
                     scope.launch {
                         try {
-                            val result = com.examscanner.premium.utils.CSVImportUtility.importStudentsFromCSV(
-                                context, uri, sectionId
-                            )
-                            
-                            if (result.students.isNotEmpty()) {
-                                viewModel.bulkImportStudents(result.students)
+                            // Detect CSV vs XLSX from the Uri. Prefer the resolved MIME type,
+                            // fall back to the display-name extension (some providers report
+                            // a generic application/octet-stream for .xlsx).
+                            val resolvedMime = context.contentResolver.getType(uri)
+                            val displayName = runCatching {
+                                context.contentResolver.query(uri, null, null, null, null)?.use { c ->
+                                    val nameIndex = c.getColumnIndex(
+                                        android.provider.OpenableColumns.DISPLAY_NAME
+                                    )
+                                    if (nameIndex >= 0 && c.moveToFirst()) c.getString(nameIndex) else null
+                                }
+                            }.getOrNull()
+                            val isXlsx = resolvedMime ==
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+                                (displayName?.endsWith(".xlsx", ignoreCase = true) == true)
+                            val format = if (isXlsx) {
+                                com.examscanner.premium.domain.importexport.ImportExportService.FileFormat.XLSX
+                            } else {
+                                com.examscanner.premium.domain.importexport.ImportExportService.FileFormat.CSV
                             }
-                            
+
+                            // ImportExportService validates each row and inserts valid rows via
+                            // the repository itself, so we must NOT also bulk-insert here (that
+                            // would double-insert). The roster list refreshes via the Flow above.
+                            val svc = com.examscanner.premium.domain.importexport.ImportExportService(
+                                context, repository
+                            )
+                            val result = svc.importRoster(sectionId, uri, format)
+
                             val message = buildString {
                                 append("Import complete: ")
                                 append("${result.successCount} added")
-                                if (result.failedCount > 0) {
-                                    append(", ${result.failedCount} failed")
+                                if (result.failedRows.isNotEmpty()) {
+                                    append(", ${result.failedRows.size} failed")
                                 }
                             }
                             Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-                            
-                            if (result.errors.isNotEmpty()) {
-                                // Show first few errors
-                                val errorMsg = result.errors.take(3).joinToString("\n")
+
+                            if (result.failedRows.isNotEmpty()) {
+                                // Show first few row errors.
+                                val errorMsg = result.failedRows.take(3)
+                                    .joinToString("\n") { "Row ${it.rowNumber}: ${it.message}" }
                                 Toast.makeText(context, "Errors:\n$errorMsg", Toast.LENGTH_LONG).show()
                             }
                         } catch (e: Exception) {
